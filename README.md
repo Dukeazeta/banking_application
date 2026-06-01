@@ -24,3 +24,7 @@ The Next.js scaffold is in place and configured for pnpm. Runtime packages for t
 - `jsonwebtoken` for JWT auth
 
 No ORM is used. Financial routes should call the stored procedures from the SQL phase instead of updating balances directly.
+
+## Database Scripts
+
+The SQL scripts live in `sql/` and use the `banking_db` database name. Run them in order before testing the auth routes that depend on `users`, `customers`, and `sp_register_customer`.
