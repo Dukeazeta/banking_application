@@ -147,7 +147,7 @@ export default function AdminOverviewPage() {
                   <tr key={i} className="hover:bg-[#f6f9fc]/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-[#0d253d]">{row.account_type}</td>
                     <td className="px-6 py-4 whitespace-nowrap font-mono text-[#64748d]">{row.account_count}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right font-mono text-[#0d253d] [font-feature-settings:'tnum']">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-[#0d253d] [font-feature-settings:'tnum']">
                       {formatCurrency(parseFloat(row.total_balance || "0"))}
                     </td>
                   </tr>
@@ -181,7 +181,7 @@ export default function AdminOverviewPage() {
                   <tr key={i} className="hover:bg-[#f6f9fc]/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-[#0d253d] capitalize">{row.transaction_type.toLowerCase()}</td>
                     <td className="px-6 py-4 whitespace-nowrap font-mono text-[#64748d]">{row.tx_count}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right font-mono text-[#0d253d] [font-feature-settings:'tnum']">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-[#0d253d] [font-feature-settings:'tnum']">
                       {formatCurrency(parseFloat(row.total_amount || "0"))}
                     </td>
                   </tr>
