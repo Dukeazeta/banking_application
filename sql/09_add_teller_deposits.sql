@@ -31,6 +31,22 @@ CREATE TABLE IF NOT EXISTS tellers (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+SET @idx_tellers_status_exists = (
+  SELECT COUNT(*)
+  FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'tellers'
+    AND INDEX_NAME = 'idx_tellers_status'
+);
+SET @idx_tellers_status_sql = IF(
+  @idx_tellers_status_exists = 0,
+  'CREATE INDEX idx_tellers_status ON tellers(status)',
+  'SELECT 1'
+);
+PREPARE idx_tellers_status_stmt FROM @idx_tellers_status_sql;
+EXECUTE idx_tellers_status_stmt;
+DEALLOCATE PREPARE idx_tellers_status_stmt;
+
 INSERT INTO users (email, password_hash, transaction_pin_hash, role)
 SELECT
   'teller@bankapp.com',

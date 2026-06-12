@@ -23,6 +23,7 @@ type AdminCustomerRow = RowDataPacket & {
   email: string;
   total_accounts: number;
   total_balance: string;
+  account_numbers: string | null;
 };
 
 export async function GET(request: NextRequest) {
@@ -57,7 +58,19 @@ export async function GET(request: NextRequest) {
   }
 
   const [customers] = await query<AdminCustomerRow[]>(
-    "SELECT * FROM vw_customer_accounts ORDER BY last_name, first_name",
+    `SELECT
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        u.email,
+        COUNT(a.account_id) AS total_accounts,
+        COALESCE(SUM(a.balance), 0.00) AS total_balance,
+        GROUP_CONCAT(a.account_number) as account_numbers
+     FROM customers c
+     JOIN users u ON c.user_id = u.user_id
+     LEFT JOIN accounts a ON c.customer_id = a.customer_id AND a.status = 'ACTIVE'
+     GROUP BY c.customer_id, c.first_name, c.last_name, u.email
+     ORDER BY c.last_name, c.first_name`
   );
 
   return NextResponse.json({ customers });

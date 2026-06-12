@@ -121,6 +121,13 @@ function redirectAuthenticatedUser(request: NextRequest, role: AuthRole) {
   return NextResponse.redirect(url);
 }
 
+function redirectToRoleHome(request: NextRequest, role: AuthRole) {
+  const url = request.nextUrl.clone();
+  url.pathname = role === "ADMIN" ? "/admin" : role === "CUSTOMER" ? "/dashboard" : "/teller";
+  url.search = "";
+  return NextResponse.redirect(url);
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
@@ -136,9 +143,7 @@ export async function proxy(request: NextRequest) {
     }
 
     if (payload.role !== "CUSTOMER") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin";
-      return NextResponse.redirect(url);
+      return redirectToRoleHome(request, payload.role);
     }
   }
 
@@ -152,9 +157,19 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if (pathname.startsWith("/teller")) {
+    if (!payload) {
+      return redirectToLogin(request);
+    }
+
+    if (payload.role !== "TELLER") {
+      return new NextResponse("Forbidden", { status: 403 });
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/login", "/register", "/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/login", "/register", "/dashboard/:path*", "/admin/:path*", "/teller/:path*"],
 };
