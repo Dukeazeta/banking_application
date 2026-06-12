@@ -1,0 +1,134 @@
+
+
+=== PAGE 1 ===
+🏦 The Bank Project
+Think of this as a mini digital banking back-office system — the kind of software that a bank
+teller would use to manage customers, open accounts, move money around, and view reports. It's
+a student project, but it's built with real-world engineering techniques.
+🏗️
+ How It's Built (Architecture)
+The project has 3 distinct layers — like floors of a building:
+Layer Technology What it does
+Frontend (the face)React + Vite The web pages a user actually sees and clicks
+Backend (the brain)Node.js +
+Express
+Processes requests, enforces rules, talks to the
+database
+Database (the
+memory) MySQL Stores every customer, account, and transaction
+permanently
+They all talk to each other: the frontend sends requests → the backend processes them → the
+database stores or retrieves data → results flow back to the screen.
+🔐
+ Security — Who Can Log In?
+The system has role-based access (different users have different powers):
+Admin — full access to everything
+Teller — the bank clerk; can do deposits, withdrawals, transfers
+Customer — a registered customer in the system
+Passwords are hashed with bcrypt (turned into scrambled text that can't be reversed), and login
+issues a JWT token — like a digital ID badge that expires after 8 hours. Every page requires this
+badge; you can't sneak in.
+A Layman's Explanation
+• 
+• 
+• 
+1
+
+
+=== PAGE 2 ===
+👥
+ What It Can Do — Feature by Feature
+1. 🧑‍💼 Customer Management
+Register a new customer (name, email, phone, address)
+View a list of all customers
+2. 🏦 Account Management
+Open a new bank account for a customer — choosing: 
+Account type: Savings (minimum ₦1,000) or Current (no minimum)
+Branch: Central Branch, Campus Branch, or City Branch
+Opening balance
+Automatically generates a unique 10-digit account number
+Lists all accounts with balance, status, and customer info
+3. 💸 Transactions (The Heart of the System)
+Operation What happens
+Deposit Cash added to an account. Balance updates. Transaction recorded. Audit log
+written.
+Withdrawal Cash removed — blocked if balance is insufficient, and the failed attempt is
+logged.
+Transfer
+Money moved from one account to another — both sides recorded
+simultaneously using database locks to prevent double-spending. A unique
+reference number (e.g. TRF-1717000000-4523) is generated.
+All three operations use proper database transactions with COMMIT and ROLLBACK —
+meaning if anything goes wrong mid-way, the system rolls everything back as if nothing happened.
+No money disappears into thin air.
+• 
+• 
+• 
+◦ 
+◦ 
+◦ 
+• 
+• 
+2
+
+
+=== PAGE 3 ===
+4. 📋 Transaction History
+View the last 50 transactions on any account — showing the type, amount, balance before and 
+after, and timestamp.
+5. 📊 Dashboard & Reports
+The dashboard gives a bird's eye view of the whole bank:
+Total number of customers
+Total number of accounts
+Total deposits, total withdrawals, total transfers
+A chart breaking down money movement by type
+Last 8 recent transactions across all accounts
+There are also two drill-down reports:
+Failed Transactions Report — shows every time a withdrawal or transfer was attempted but
+rejected (with reason and timestamp)
+Customer-Accounts Report — shows every customer alongside their account(s), balances,
+account type, and branch
+✨
+ What Makes It Special
+Database integrity is taken seriously. Every money operation uses BEGIN TRANSACTION →
+do the work → COMMIT, and rolls back on failure. Many student projects skip this — this one
+doesn't.
+Row-level locking on transfers. When transferring money between two accounts, it locks both
+rows simultaneously (in sorted order to prevent deadlocks). This is the correct, production-grade
+way to handle concurrent transfers.
+Failed transactions are never silently dropped. When someone tries to withdraw or transfer
+more than they have, the system doesn't just say "no" — it writes a record to a 
+failed_transactions table, which you can view in the Reports section.
+Full audit trail. Every sensitive action (deposit, account opening) writes to an audit_logs
+table tagged with the user who did it and when.
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+3
+
+
+=== PAGE 4 ===
+Demo mode / offline fallback. If MySQL isn't connected, the app doesn't crash — it falls back
+to an in-memory demo store. This means you can run a live presentation without needing a
+database server running.
+One-click startup. Double-clicking run-app.bat kills any old processes on the right ports
+and starts both servers automatically.
+Balance is protected at the database level too. The schema has a CHECK (balance >=
+0) constraint — even if the application code had a bug, the database itself would refuse to let a
+balance go negative.
+In one sentence: It's a full-stack digital banking teller system where you can manage
+customers and accounts, move money safely with proper database safeguards, and
+view live reports — all secured behind role-based login.
+• 
+• 
+• 
+4

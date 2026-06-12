@@ -121,7 +121,7 @@ function redirectAuthenticatedUser(request: NextRequest, role: AuthRole) {
   return NextResponse.redirect(url);
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const payload = token ? await verifyToken(token) : null;

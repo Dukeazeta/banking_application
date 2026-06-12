@@ -1,26 +1,1960 @@
 @import "tailwindcss";
 
+/* ===================================================================
+   SECUREBANK DESIGN SYSTEM
+   Tokens derived from DESIGN.MD (Apple-inspired)
+   Adapted for banking dashboard context
+   CSC 421 - Group 3
+   =================================================================== */
+
+
+/* -----------------------------------------------------------------
+   1. DESIGN TOKENS (CSS Custom Properties)
+   Single source of truth for every value in the system.
+   ----------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand & Accent - Action Blue is the ONE interactive color */
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+
+  /* Text - light surfaces */
+  --color-ink: #1d1d1f;
+  --color-body: #1d1d1f;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+
+  /* Text - dark surfaces */
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #cccccc;
+  --color-on-primary: #ffffff;
+  --color-on-dark: #ffffff;
+
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-canvas-parchment: #f5f5f7;
+  --color-surface-pearl: #fafafc;
+  --color-surface-tile-1: #272729;
+  --color-surface-tile-2: #2a2a2c;
+  --color-surface-tile-3: #252527;
+  --color-surface-black: #000000;
+  --color-surface-chip: #d2d2d7;
+
+  /* Borders */
+  --color-divider-soft: #f0f0f0;
+  --color-hairline: #e0e0e0;
+
+  /* Banking status - functional, not decorative */
+  --color-success: #34c759;
+  --color-success-bg: #f0faf2;
+  --color-success-text: #1b7a32;
+  --color-error: #ff3b30;
+  --color-error-bg: #fef2f1;
+  --color-error-text: #c42b22;
+  --color-warning: #ff9500;
+  --color-warning-bg: #fff8f0;
+  --color-warning-text: #995a00;
+  --color-info-bg: #eef6ff;
+  --color-info-text: #1e5a9e;
+
+  /* Spacing (8px base unit) */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 17px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-section: 80px;
+
+  /* Border radius */
+  --rounded-none: 0px;
+  --rounded-xs: 5px;
+  --rounded-sm: 8px;
+  --rounded-md: 11px;
+  --rounded-lg: 18px;
+  --rounded-pill: 9999px;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --global-nav-height: 44px;
+  --content-max-width: 980px;
+
+  /* Elevation - the single shadow in the system */
+  --shadow-product: 3px 5px 30px rgba(0, 0, 0, 0.22);
+
+  /* Transitions */
+  --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
 }
+
+
+/* -----------------------------------------------------------------
+   2. TAILWIND V4 THEME EXTENSION
+   Maps tokens to Tailwind utility classes:
+   bg-primary, text-ink, rounded-pill, font-sans, etc.
+   ----------------------------------------------------------------- */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* Colors */
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+  --color-ink: #1d1d1f;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+  --color-canvas: #ffffff;
+  --color-parchment: #f5f5f7;
+  --color-pearl: #fafafc;
+  --color-tile-1: #272729;
+  --color-tile-2: #2a2a2c;
+  --color-tile-3: #252527;
+  --color-surface-black: #000000;
+  --color-on-primary: #ffffff;
+  --color-on-dark: #ffffff;
+  --color-muted: #cccccc;
+  --color-hairline: #e0e0e0;
+  --color-divider: #f0f0f0;
+  --color-success: #34c759;
+  --color-success-bg: #f0faf2;
+  --color-error: #ff3b30;
+  --color-error-bg: #fef2f1;
+  --color-warning: #ff9500;
+  --color-warning-bg: #fff8f0;
+
+  /* Fonts */
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+
+  /* Border Radius */
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+
+/* -----------------------------------------------------------------
+   3. BASE STYLES
+   Body defaults, links, focus, selection.
+   Body at 17px (not 16px) per DESIGN.MD.
+   ----------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas-parchment);
+  color: var(--color-ink);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(0, 102, 204, 0.15);
+  color: var(--color-ink);
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-divider-soft);
+  margin: var(--space-lg) 0;
+}
+
+
+/* -----------------------------------------------------------------
+   4. TYPOGRAPHY SCALE
+   Full DESIGN.MD type hierarchy.
+   SF Pro mapped to Inter with recommended adjustments:
+   letter-spacing nudged -0.01em, line-height adjusted per DESIGN.MD notes.
+   ----------------------------------------------------------------- */
+
+.type-hero-display {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+
+.type-display-lg {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.type-display-md {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+}
+
+.type-lead {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+}
+
+.type-lead-airy {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.type-tagline {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+}
+
+.type-body-strong {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.374px;
+}
+
+.type-body {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+}
+
+.type-dense-link {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 2.41;
+  letter-spacing: 0;
+}
+
+.type-caption {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+}
+
+.type-caption-strong {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+}
+
+.type-button-large {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: 0;
+}
+
+.type-button-utility {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+}
+
+.type-fine-print {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.12px;
+}
+
+.type-nav-link {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.12px;
+}
+
+
+/* -----------------------------------------------------------------
+   5. BUTTONS
+   Two grammars: pill CTAs (rounded-pill) and utility rects (rounded-sm).
+   Active state: scale(0.95) system-wide micro-interaction.
+   No shadows on buttons per DESIGN.MD.
+   ----------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform var(--duration-fast) var(--ease-default),
+              opacity var(--duration-fast) var(--ease-default);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.48;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary - Action Blue pill */
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.374px;
+  border-radius: var(--rounded-pill);
+  padding: 11px 22px;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-focus);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: 2px;
+}
+
+/* Secondary - Ghost pill with blue border */
+.btn-secondary {
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.374px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--rounded-pill);
+  padding: 11px 22px;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 102, 204, 0.06);
+}
+
+/* Dark utility - compact rect */
+.btn-dark {
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  border-radius: var(--rounded-sm);
+  padding: 8px 15px;
+}
+
+.btn-dark:hover {
+  background: var(--color-ink-muted-80);
+}
+
+/* Pearl capsule - soft secondary */
+.btn-pearl {
+  background: var(--color-surface-pearl);
+  color: var(--color-ink-muted-80);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  border: 1px solid var(--color-divider-soft);
+  border-radius: var(--rounded-md);
+  padding: 8px 14px;
+}
+
+.btn-pearl:hover {
+  background: var(--color-canvas-parchment);
+}
+
+/* Store hero - larger primary for emphasis */
+.btn-hero {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: 0;
+  border-radius: var(--rounded-pill);
+  padding: 14px 28px;
+}
+
+.btn-hero:hover {
+  background: var(--color-primary-focus);
+}
+
+/* Icon button - 44x44 circle, meets touch target */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--rounded-pill);
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+.btn-icon:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+/* Button on dark surfaces */
+.btn-icon-dark {
+  color: var(--color-on-dark);
+}
+
+.btn-icon-dark:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Loading state - spinner replaces content */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.btn-secondary.btn-loading::after,
+.btn-pearl.btn-loading::after {
+  border-color: var(--color-primary);
+  border-right-color: transparent;
+}
+
+
+/* -----------------------------------------------------------------
+   6. FORM CONTROLS
+   Pill-shaped inputs (matching CTA grammar per DESIGN.MD).
+   44px minimum height for touch targets.
+   Label above input, error below.
+   ----------------------------------------------------------------- */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  color: var(--color-ink);
+}
+
+.form-helper {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--color-ink-muted-48);
+}
+
+.form-error-text {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--color-error-text);
+}
+
+/* Text input */
+.input-field {
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 0 20px;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 44px;
+  letter-spacing: -0.374px;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-pill);
+  outline: none;
+  transition: border-color var(--duration-base) var(--ease-default),
+              box-shadow var(--duration-base) var(--ease-default);
+}
+
+.input-field::placeholder {
+  color: var(--color-ink-muted-48);
+}
+
+.input-field:focus {
+  border-color: var(--color-primary-focus);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+.input-field:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  background: var(--color-canvas-parchment);
+}
+
+/* Error state */
+.input-field-error {
+  border-color: var(--color-error);
+}
+
+.input-field-error:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.12);
+}
+
+/* Select dropdown */
+.select-field {
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 0 40px 0 20px;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 44px;
+  letter-spacing: -0.374px;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3e%3cpath d='M1 1.5L6 6.5L11 1.5' stroke='%237a7a7a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 12px;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-pill);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color var(--duration-base) var(--ease-default),
+              box-shadow var(--duration-base) var(--ease-default);
+}
+
+.select-field:focus {
+  border-color: var(--color-primary-focus);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+/* Textarea */
+.textarea-field {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 20px;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-sm);
+  outline: none;
+  resize: vertical;
+  transition: border-color var(--duration-base) var(--ease-default),
+              box-shadow var(--duration-base) var(--ease-default);
+}
+
+.textarea-field:focus {
+  border-color: var(--color-primary-focus);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+
+/* Inline form layout (label and input on same row) */
+.form-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+
+/* -----------------------------------------------------------------
+   7. CARDS
+   White surface, hairline border, rounded-lg, 24px padding.
+   No shadows on cards per DESIGN.MD (shadow is product imagery only).
+   ----------------------------------------------------------------- */
+
+.card {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-lg);
+  padding: var(--space-lg);
+}
+
+.card-flush {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-lg);
+  padding: 0;
+}
+
+.card-dark {
+  background: var(--color-surface-tile-1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--rounded-lg);
+  padding: var(--space-lg);
+  color: var(--color-on-dark);
+}
+
+/* Stat card - for dashboard metrics */
+.card-stat {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.card-stat-label {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--color-ink-muted-48);
+}
+
+.card-stat-value {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+  color: var(--color-ink);
+}
+
+.card-stat-change {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+}
+
+/* Account card - specific to banking */
+.card-account {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.card-account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.card-account-number {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  color: var(--color-ink-muted-48);
+  letter-spacing: 0;
+}
+
+.card-account-balance {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-account-actions {
+  display: flex;
+  gap: var(--space-xs);
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--color-divider-soft);
+  margin-top: var(--space-xs);
+}
+
+
+/* -----------------------------------------------------------------
+   8. BADGES
+   Pill-shaped status indicators.
+   Status colors are functional (success/error/warning), not decorative.
+   Account types use neutral palette per single-accent rule.
+   ----------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.0;
+  letter-spacing: -0.12px;
+  padding: 4px 10px;
+  border-radius: var(--rounded-pill);
+  white-space: nowrap;
+}
+
+/* Status dot preceding badge text */
+.badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Transaction status */
+.badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.badge-success::before {
+  background: var(--color-success);
+}
+
+.badge-failed {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.badge-failed::before {
+  background: var(--color-error);
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.badge-warning::before {
+  background: var(--color-warning);
+}
+
+/* Account status */
+.badge-active {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.badge-active::before {
+  background: var(--color-success);
+}
+
+.badge-frozen {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.badge-frozen::before {
+  background: #3b82f6;
+}
+
+.badge-closed {
+  background: var(--color-canvas-parchment);
+  color: var(--color-ink-muted-48);
+}
+
+.badge-closed::before {
+  background: var(--color-ink-muted-48);
+}
+
+/* Account type - neutral palette, no new accent colors */
+.badge-savings,
+.badge-checking {
+  background: var(--color-canvas-parchment);
+  color: var(--color-ink-muted-80);
+  border: 1px solid var(--color-hairline);
+}
+
+.badge-savings::before,
+.badge-checking::before {
+  display: none;
+}
+
+
+/* -----------------------------------------------------------------
+   9. DATA TABLES
+   Minimal chrome. Hairline bottom borders only (not top+bottom).
+   Body-strong headers, body cells.
+   Hover row highlight on parchment.
+   ----------------------------------------------------------------- */
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+}
+
+.data-table thead th {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  color: var(--color-ink-muted-80);
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-hairline);
+  white-space: nowrap;
+}
+
+.data-table tbody td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-divider-soft);
+  color: var(--color-ink);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr {
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-canvas-parchment);
+}
+
+/* Monospace cells for financial data */
+.data-table .cell-mono {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 14px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Right-align amount columns */
+.data-table .cell-amount {
+  text-align: right;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Wrapped in card for contained tables */
+.table-container {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--rounded-lg);
+  overflow: hidden;
+}
+
+.table-container .data-table thead th:first-child,
+.table-container .data-table tbody td:first-child {
+  padding-left: var(--space-lg);
+}
+
+.table-container .data-table thead th:last-child,
+.table-container .data-table tbody td:last-child {
+  padding-right: var(--space-lg);
+}
+
+/* Responsive: horizontal scroll on small screens */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/* -----------------------------------------------------------------
+   10. GLOBAL NAVIGATION
+   Fixed black bar, 44px, full-width.
+   The only place pure black appears.
+   ----------------------------------------------------------------- */
+
+.global-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--global-nav-height);
+  padding: 0 var(--space-lg);
+  background: var(--color-surface-black);
+}
+
+.global-nav-brand {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.0;
+  letter-spacing: -0.224px;
+  color: var(--color-on-dark);
+  text-decoration: none;
+}
+
+.global-nav-brand:hover {
+  text-decoration: none;
+  opacity: 0.88;
+}
+
+.global-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.global-nav-link {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.12px;
+  color: var(--color-on-dark);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.global-nav-link:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.global-nav-user {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -0.12px;
+  color: var(--color-body-muted);
+}
+
+/* Hamburger - hidden on desktop, shown on mobile */
+.global-nav-hamburger {
+  display: none;
+  color: var(--color-on-dark);
+}
+
+
+/* -----------------------------------------------------------------
+   11. SIDEBAR
+   Near-black (tile-1), fixed left, below global nav.
+   Links with active state using primary-on-dark blue.
+   ----------------------------------------------------------------- */
+
+.sidebar {
+  position: fixed;
+  top: var(--global-nav-height);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--color-surface-tile-1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  transition: width var(--duration-slow) var(--ease-default),
+              transform var(--duration-slow) var(--ease-default);
+}
+
+.sidebar-inner {
+  padding: var(--space-lg) 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-section {
+  padding: 0 var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.sidebar-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.0;
+  letter-spacing: 0.5px;
+  color: var(--color-body-muted);
+  text-transform: uppercase;
+  padding: 0 var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px var(--space-sm);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  color: var(--color-body-muted);
+  text-decoration: none;
+  border-radius: var(--rounded-sm);
+  transition: color var(--duration-fast) var(--ease-default),
+              background var(--duration-fast) var(--ease-default);
+}
+
+.sidebar-link:hover {
+  color: var(--color-on-dark);
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.sidebar-link-active {
+  color: var(--color-primary-on-dark);
+  background: rgba(41, 151, 255, 0.1);
+}
+
+.sidebar-link-active:hover {
+  color: var(--color-primary-on-dark);
+  background: rgba(41, 151, 255, 0.14);
+}
+
+.sidebar-link-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  opacity: 0.56;
+}
+
+.sidebar-link:hover .sidebar-link-icon,
+.sidebar-link-active .sidebar-link-icon {
+  opacity: 1;
+}
+
+/* Sidebar footer (user info, logout) */
+.sidebar-footer {
+  margin-top: auto;
+  padding: var(--space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  z-index: 25;
+}
+
+
+/* -----------------------------------------------------------------
+   12. APP SHELL LAYOUT
+   Global nav (top) + Sidebar (left) + Main content (right).
+   Main content has parchment background and centered container.
+   ----------------------------------------------------------------- */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  padding-top: var(--global-nav-height);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: var(--space-xl);
+  min-height: calc(100dvh - var(--global-nav-height));
+  background: var(--color-canvas-parchment);
+  transition: margin-left var(--duration-slow) var(--ease-default);
+}
+
+.content-container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+/* Page header - title and optional subtitle/actions */
+.page-header {
+  margin-bottom: var(--space-xl);
+}
+
+.page-title {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: var(--color-ink);
+}
+
+.page-subtitle {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-ink-muted-48);
+  margin-top: var(--space-xs);
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* Section within a page */
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.section-title {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+  color: var(--color-ink);
+  margin-bottom: var(--space-md);
+}
+
+/* Grid layouts for cards */
+.card-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.card-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.card-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.card-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+
+/* -----------------------------------------------------------------
+   13. AUTH PAGES
+   Centered card layout for login and register.
+   Clean white canvas, no sidebar.
+   ----------------------------------------------------------------- */
+
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  background: var(--color-canvas);
+  padding: var(--space-lg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-title {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.17;
+  letter-spacing: -0.374px;
+  color: var(--color-ink);
+  text-align: center;
+}
+
+.auth-subtitle {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-ink-muted-48);
+  text-align: center;
+  margin-top: var(--space-xs);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: var(--space-lg);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--color-ink-muted-48);
+}
+
+.auth-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--rounded-sm);
+  border: 1px solid rgba(255, 59, 48, 0.12);
+}
+
+
+/* -----------------------------------------------------------------
+   14. TOAST / ALERTS
+   Fixed-position notifications with backdrop-blur.
+   Modeled on DESIGN.MD floating-sticky-bar.
+   ----------------------------------------------------------------- */
+
+.toast {
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  min-width: 320px;
+  max-width: 480px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--rounded-lg);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  z-index: 50;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  animation: toast-in var(--duration-slow) var(--ease-default) both;
+}
+
+.toast-success {
+  background: rgba(240, 250, 242, 0.92);
+  color: var(--color-success-text);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+}
+
+.toast-error {
+  background: rgba(254, 242, 241, 0.92);
+  color: var(--color-error-text);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+}
+
+.toast-info {
+  background: rgba(245, 245, 247, 0.92);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+}
+
+/* Inline alert (within page flow, not fixed) */
+.alert {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--rounded-sm);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+}
+
+.alert-success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid rgba(52, 199, 89, 0.16);
+}
+
+.alert-error {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border: 1px solid rgba(255, 59, 48, 0.16);
+}
+
+.alert-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid rgba(255, 149, 0, 0.16);
+}
+
+.alert-info {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  border: 1px solid rgba(59, 130, 246, 0.16);
+}
+
+
+/* -----------------------------------------------------------------
+   15. FINANCIAL DATA UTILITIES
+   Monospace for amounts, references, account numbers.
+   Tabular-nums for aligned columns.
+   ----------------------------------------------------------------- */
+
+/* Monospace financial display */
+.font-financial {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Amount display */
+.amount {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.amount-positive {
+  color: var(--color-success-text);
+}
+
+.amount-negative {
+  color: var(--color-error-text);
+}
+
+/* Large balance display (account cards, dashboard) */
+.balance-display {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+/* Transaction reference */
+.txn-ref {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-ink-muted-48);
+  letter-spacing: 0;
+}
+
+/* Account number */
+.account-number {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-ink-muted-48);
+  letter-spacing: 0;
+}
+
+/* Transaction type labels */
+.txn-type {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+}
+
+.txn-type-deposit { color: var(--color-success-text); }
+.txn-type-withdrawal { color: var(--color-error-text); }
+.txn-type-transfer-in { color: var(--color-success-text); }
+.txn-type-transfer-out { color: var(--color-ink); }
+
+
+/* -----------------------------------------------------------------
+   16. EMPTY STATES
+   Centered placeholder when no data exists.
+   Icon + title + description + CTA.
+   ----------------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xxl) var(--space-lg);
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-ink-muted-48);
+  margin-bottom: var(--space-lg);
+  opacity: 0.48;
+}
+
+.empty-state-title {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+  color: var(--color-ink);
+  margin-bottom: var(--space-xs);
+}
+
+.empty-state-description {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-ink-muted-48);
+  max-width: 360px;
+  margin-bottom: var(--space-lg);
+}
+
+
+/* -----------------------------------------------------------------
+   17. SKELETON LOADERS
+   Warm-toned shimmer matching parchment palette.
+   ----------------------------------------------------------------- */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-divider-soft) 25%,
+    var(--color-canvas-parchment) 37%,
+    var(--color-divider-soft) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: var(--rounded-sm);
+}
+
+.skeleton-text {
+  height: 17px;
+  margin-bottom: var(--space-xs);
+}
+
+.skeleton-text:last-child {
+  width: 60%;
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 45%;
+  margin-bottom: var(--space-sm);
+  border-radius: var(--rounded-xs);
+}
+
+.skeleton-card {
+  height: 120px;
+  border-radius: var(--rounded-lg);
+}
+
+.skeleton-badge {
+  height: 24px;
+  width: 72px;
+  border-radius: var(--rounded-pill);
+}
+
+
+/* -----------------------------------------------------------------
+   18. GENERAL UTILITIES
+   ----------------------------------------------------------------- */
+
+/* Text colors */
+.text-primary { color: var(--color-primary); }
+.text-ink { color: var(--color-ink); }
+.text-muted { color: var(--color-ink-muted-48); }
+.text-on-dark { color: var(--color-on-dark); }
+
+/* Background surfaces */
+.bg-canvas { background: var(--color-canvas); }
+.bg-parchment { background: var(--color-canvas-parchment); }
+.bg-tile-dark { background: var(--color-surface-tile-1); }
+
+/* Links */
+.text-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+.text-link-on-dark {
+  color: var(--color-primary-on-dark);
+  text-decoration: none;
+}
+
+.text-link-on-dark:hover {
+  text-decoration: underline;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-divider-soft);
+  margin: var(--space-lg) 0;
+}
+
+.divider-tight {
+  margin: var(--space-sm) 0;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Truncate text with ellipsis */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* -----------------------------------------------------------------
+   19. ANIMATIONS
+   Minimal: toast entry, skeleton shimmer, spinner.
+   MOTION_INTENSITY: 3 - functional transitions only.
+   ----------------------------------------------------------------- */
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* -----------------------------------------------------------------
+   20. RESPONSIVE BREAKPOINTS
+   1068px: sidebar collapses to icons
+   833px:  sidebar hidden behind hamburger
+   640px:  tighter spacing, smaller titles
+   ----------------------------------------------------------------- */
+
+/* Tablet landscape - sidebar collapses to icon strip */
+@media (max-width: 1068px) {
+  .sidebar {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  .sidebar-section-label {
+    display: none;
+  }
+
+  .sidebar-link {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .sidebar-link span {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+
+  .card-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card-grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet portrait and below - sidebar hidden, hamburger shown */
+@media (max-width: 833px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-section-label {
+    display: block;
+  }
+
+  .sidebar-link {
+    justify-content: flex-start;
+    padding: 10px var(--space-sm);
+  }
+
+  .sidebar-link span {
+    display: inline;
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .global-nav-hamburger {
+    display: flex;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .card-grid-2,
+  .card-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .card-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .page-title {
+    font-size: 34px;
+  }
+}
+
+/* Phone - tighter spacing */
+@media (max-width: 640px) {
+  .main-content {
+    padding: var(--space-md);
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+
+  .card {
+    padding: var(--space-md);
+  }
+
+  .card-stat {
+    padding: var(--space-md);
+  }
+
+  .card-account {
+    padding: var(--space-md);
+  }
+
+  .card-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .auth-title {
+    font-size: 28px;
+  }
+
+  .toast {
+    left: var(--space-md);
+    right: var(--space-md);
+    min-width: unset;
+    bottom: var(--space-md);
+  }
+
+  .balance-display {
+    font-size: 24px;
+  }
+}
+
+
+/* =================================================================
+   LANDING PAGE STYLES
+   Stripe-inspired tokens from DESIGN.MD:
+   - Weight 300, negative tracking, ss01
+   - Indigo #533afd primary
+   - Pill-shaped CTAs
+   - Inter at thin weights as Sohne substitute
+   ================================================================= */
+
+/* Landing - Display headline
+   DESIGN.MD: display-xxl = 56px, weight 300, -1.4px tracking */
+.landing-display {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1.4px;
+  color: #0d253d;
+  font-feature-settings: "ss01";
+}
+
+/* Landing - Body text
+   DESIGN.MD: body-lg = 16px, weight 300, 1.4 line-height */
+.landing-body {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.55;
+  letter-spacing: 0;
+  color: #273951;
+  font-feature-settings: "ss01";
+}
+
+/* Landing - Caption
+   DESIGN.MD: caption = 13px, weight 400, -0.39px tracking */
+.landing-caption {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.39px;
+  font-feature-settings: "ss01";
+}
+
+/* Landing - Nav brand
+   DESIGN.MD: body-md = 15px, weight 400 */
+.landing-nav-brand {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.0;
+  letter-spacing: -0.2px;
+  color: #0d253d;
+  font-feature-settings: "ss01";
+}
+
+/* Landing - Nav link */
+.landing-nav-link {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: 0;
+  color: #273951;
+  text-decoration: none;
+  transition: color 150ms ease;
+  font-feature-settings: "ss01";
+}
+
+.landing-nav-link:hover {
+  color: #533afd;
+  text-decoration: none;
+}
+
+/* Landing - Primary CTA
+   DESIGN.MD: button-md = 16px, weight 400, pill 9999px, indigo fill */
+.landing-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: 0;
+  color: #ffffff;
+  background: #533afd;
+  border: none;
+  border-radius: 9999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 150ms ease,
+    transform 120ms ease;
+  font-feature-settings: "ss01";
+}
+
+.landing-btn-primary:hover {
+  background: #4434d4;
+  text-decoration: none;
+}
+
+.landing-btn-primary:active {
+  transform: scale(0.97);
+  background: #2e2b8c;
+}
+
+/* Landing - Secondary CTA
+   DESIGN.MD: ghost pill with primary border */
+.landing-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: 0;
+  color: #533afd;
+  background: transparent;
+  border: 1px solid rgba(83, 58, 253, 0.35);
+  border-radius: 9999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    transform 120ms ease;
+  font-feature-settings: "ss01";
+}
+
+.landing-btn-secondary:hover {
+  background: rgba(83, 58, 253, 0.05);
+  border-color: rgba(83, 58, 253, 0.55);
+  text-decoration: none;
+}
+
+.landing-btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* Landing - mobile adjustments */
+@media (max-width: 640px) {
+  .landing-display {
+    letter-spacing: -0.8px;
+  }
+
+  .landing-body {
+    font-size: 16px;
+  }
+
+  .landing-btn-primary,
+  .landing-btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
 }

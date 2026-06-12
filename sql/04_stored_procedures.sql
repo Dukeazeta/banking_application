@@ -75,13 +75,12 @@ BEGIN
         SET MESSAGE_TEXT = 'User is not a customer.';
     END IF;
 
-    -- Generate a unique account number (simple format for this project)
-    -- E.g., ACC-YYYYMMDD-XXXX
-    SET v_account_number = CONCAT('ACC-', DATE_FORMAT(NOW(), '%Y%m%d'), '-', LPAD(FLOOR(RAND() * 9999), 4, '0'));
-
-    -- To be totally safe on uniqueness, we could loop, but for this scale, random is acceptable
-    -- or better, use UUID substring
-    SET v_account_number = CONCAT('ACC-', DATE_FORMAT(NOW(), '%Y%m%d'), '-', UPPER(SUBSTRING(UUID(), 1, 8)));
+    -- Generate a simple 10-digit Nigerian-style account number for this project.
+    -- The prefix keeps demo accounts in a recognizable range without implying a real bank.
+    SET v_account_number = CONCAT(
+        '20',
+        LPAD(CAST(FLOOR(RAND() * 100000000) AS CHAR), 8, '0')
+    );
 
     INSERT INTO accounts (customer_id, account_number, account_type, balance, status)
     VALUES (v_customer_id, v_account_number, p_account_type, 0.00, 'ACTIVE');

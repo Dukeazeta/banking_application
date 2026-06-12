@@ -1,0 +1,1120 @@
+
+
+=== PAGE 1 ===
+Banking  Transaction  Database  System  
+Group  3  Brain  Notes  -  Duke  Azeta  This  document  explains  our  entire  project  in  plain  language.  
+ 
+No
+ 
+code
+ 
+experience
+ 
+needed
+ 
+to
+ 
+follow
+ 
+along.
+   
+What  Are  We  Building?  
+A  banking  system.  Customers  can  register,  open  accounts,  deposit  money,  
+withdraw
+ 
+money,
+ 
+transfer
+ 
+money
+ 
+to
+ 
+other
+ 
+accounts,
+ 
+and
+ 
+view
+ 
+their
+ 
+transaction
+ 
+history.
+ 
+Admins
+ 
+can
+ 
+see
+ 
+everything
+ 
+happening
+ 
+across
+ 
+the
+ 
+system.
+ But  the  real  product  is  not  the  website.  The  real  product  is  the  database.  The  
+website
+ 
+is
+ 
+just
+ 
+a
+ 
+nice
+ 
+window
+ 
+to
+ 
+interact
+ 
+with
+ 
+it.
+ 
+Our
+ 
+professor
+ 
+is
+ 
+grading
+ 
+us
+ 
+on
+ 
+how
+ 
+well
+ 
+the
+ 
+database
+ 
+handles
+ 
+money
+ 
+correctly,
+ 
+not
+ 
+on
+ 
+how
+ 
+pretty
+ 
+the
+ 
+buttons
+ 
+look.
+ 
+The  Two  Big  Problems  We  Have  to  Solve  
+Problem  1:  Transaction  Correctness  Imagine  a  customer  has  $1,000  in  their  account.  They  try  to  withdraw  $5,000.  The  
+system
+ 
+must
+ 
+say
+ 
+no.
+ 
+Sounds
+ 
+obvious,
+ 
+but
+ 
+it
+ 
+is
+ 
+surprisingly
+ 
+easy
+ 
+to
+ 
+get
+ 
+wrong
+ 
+in
+ 
+code.
+ Our  solution:  The  database  itself  checks  the  balance  before  allowing  any  
+withdrawal
+ 
+or
+ 
+transfer.
+ 
+Even
+ 
+if
+ 
+our
+ 
+website
+ 
+has
+ 
+a
+ 
+bug,
+ 
+the
+ 
+database
+ 
+will
+ 
+still
+ 
+reject
+ 
+it.
+ 
+The
+ 
+database
+ 
+is
+ 
+the
+ 
+final
+ 
+boss.
+ 
+Problem  2:  Atomicity  (The  "All  or  Nothing"  Rule)  A  transfer  is  actually  TWO  operations:  1.  Take  money  out  of  Account  A  2.  Put  money  into  Account  B  What  if  step  1  succeeds  but  step  2  fails?  The  money  disappears.  That  is  a  disaster.  
+
+
+=== PAGE 2 ===
+Our  solution:  We  wrap  both  steps  in  a  transaction  (a  database  concept).  Either  
+BOTH
+ 
+steps
+ 
+succeed,
+ 
+or
+ 
+NEITHER
+ 
+does.
+ 
+The
+ 
+database
+ 
+has
+ 
+two
+ 
+commands
+ 
+for
+ 
+this:
+ ·
+        
+COMMIT  =  "Everything  worked,  save  it  all."  ·
+        
+ROLLBACK  =  "Something  went  wrong,  undo  everything."  
+Our  Technology  Stack  
+Layer  Technology  What  It  Does  
+Frontend  Next.js  (TypeScript)  The  website  the  user  sees  and  clicks  on  
+Backend  Next.js  API  Routes  Receives  requests  from  the  website  and  talks  to  the  database  
+Database  MySQL  8+  Stores  all  the  data  and  enforces  all  the  rules  
+  Think  of  it  like  a  restaurant:  ·
+        
+The  frontend  is  the  menu  and  the  dining  room  (what  the  customer  sees)  ·
+        
+The  backend  is  the  waiter  (takes  orders,  brings  food  back)  ·
+        
+The  database  is  the  kitchen  (where  the  real  work  happens)  
+The  Database  —  Our  6  Tables  
+A  table  is  like  a  spreadsheet.  Each  table  stores  one  type  of  thing.  Here  are  our  6  
+tables
+ 
+and
+ 
+what
+ 
+they
+ 
+store.
+ 
+1.  Users  Table  Stores  login  credentials.  Every  person  who  can  log  in  (customer  or  admin)  has  a  
+row
+ 
+here.
+ 
+What's  Stored  Example  
+Email  john@email.com  
+Password  (encrypted)  $2a$10$xYz...  (not  readable)  
+Role  CUSTOMER  or  ADMIN  
+
+
+=== PAGE 3 ===
+When  they  joined  2026-05-30  
+  NOTE:  We  NEVER  store  passwords  as  plain  text.  We  use  something  called  bcrypt  
+to
+ 
+turn
+ 
+"mypassword123"
+ 
+into
+ 
+an
+ 
+unreadable
+ 
+scramble.
+ 
+Even
+ 
+if
+ 
+someone
+ 
+steals
+ 
+the
+ 
+database,
+ 
+they
+ 
+cannot
+ 
+read
+ 
+passwords.
+ 
+2.  Customers  Table  Stores  the  personal  profile  for  each  customer.  Linked  to  the  users  table.  
+What's  Stored  Example  
+First  name  Duke  
+Last  name  Azeta  
+Phone  08012345678  
+Address  33  Lestannon  Avenue,  Carrickfergus  BT38  9NN  
+Date  of  birth  1805-12-14  
+  Why  is  the  customers  table  separate  from  users?  Because  an  admin  is  a  user  but  
+NOT
+ 
+a
+ 
+customer.
+ 
+Keeping
+ 
+them
+ 
+separate
+ 
+is
+ 
+cleaner.
+ 
+3.  Accounts  Table  Each  customer  can  have  multiple  bank  accounts  (e.g.,  one  savings,  one  checking).  
+What's  Stored  Example  
+Account  number  ACC-20260530-1A2B3C4D  
+Account  type  SAVINGS  or  CHECKING  
+Balance  50,000.00  
+Status  ACTIVE,  CLOSED,  or  FROZEN  
+Date  opened  2026-05-30  
+Date  closed  NULL  (unless  closed)  
+  Why  is  balance  stored  here  AND  calculated  from  transactions?  For  speed.  
+Instead
+ 
+of
+ 
+adding
+ 
+up
+ 
+every
+ 
+transaction
+ 
+ever
+ 
+to
+ 
+find
+ 
+the
+ 
+current
+ 
+balance,
+ 
+we
+ 
+just
+ 
+
+
+=== PAGE 4 ===
+read  this  number.  But  we  update  it  carefully  inside  a  locked  transaction  so  it  is  
+always
+ 
+correct.
+ 
+4.  Transactions  Table  The  heart  of  the  system.  Every  time  money  moves  (in  or  out),  a  row  is  added  here.  
+Rows
+ 
+are
+ 
+NEVER
+ 
+deleted
+ 
+or
+ 
+edited.
+ 
+This
+ 
+is
+ 
+the
+ 
+permanent
+ 
+ledger.
+ 
+What's  Stored  Example  
+Reference  TXN-20260530-A1B2C3D4  
+Type  DEPOSIT,  WITHDRAWAL,  TRANSFER_IN,  or  TRANSFER_OUT  
+Amount  10,000.00  
+Balance  after  this  transaction  60,000.00  
+Status  SUCCESS  or  FAILED  
+Who  did  it  User  ID  of  the  person  who  performed  it  
+Description  Salary  deposit  
+Timestamp  2026-05-30  14:30:00  
+  Why  store  "balance  after"?  So  we  can  look  at  any  transaction  and  know  exactly  
+what
+ 
+the
+ 
+balance
+ 
+was
+ 
+at
+ 
+that
+ 
+moment.
+ 
+This
+ 
+is
+ 
+called
+ 
+an
+ 
+audit
+ 
+trail.
+ Why  do  we  record  FAILED  transactions  too?  Because  the  customer  should  see  
+"you
+ 
+tried
+ 
+to
+ 
+withdraw
+ 
+50,000
+ 
+and
+ 
+it
+ 
+was
+ 
+rejected"
+ 
+in
+ 
+their
+ 
+history.
+ 
+And
+ 
+admins
+ 
+need
+ 
+to
+ 
+see
+ 
+all
+ 
+failed
+ 
+attempts.
+ 
+5.  Transfers  Table  When  someone  transfers  money,  it  creates  TWO  transaction  records  (one  
+TRANSFER_OUT
+ 
+from
+ 
+the
+ 
+sender,
+ 
+one
+ 
+TRANSFER_IN
+ 
+to
+ 
+the
+ 
+receiver).
+ 
+The
+ 
+transfers
+ 
+table
+ 
+links
+ 
+those
+ 
+two
+ 
+records
+ 
+together.
+ 
+What's  Stored  Example  
+Reference  TRF-20260530-E5F6G7H8  
+From  account  Account  A  
+To  account  Account  B  
+Amount  5,000.00  
+
+
+=== PAGE 5 ===
+Status  SUCCESS  or  FAILED  
+  Without  this  table,  we  would  have  no  way  to  answer  "show  me  all  transfers  
+between
+ 
+Account
+ 
+A
+ 
+and
+ 
+Account
+ 
+B."
+ 
+6.  Failed  Transaction  Log  A  dedicated  table  just  for  recording  WHY  something  was  rejected.  Only  admins  can  
+see
+ 
+this.
+ 
+What's  Stored  Example  
+Who  tried  it  User  ID  
+Which  account  Account  ID  
+What  they  tried  WITHDRAWAL  
+How  much  50,000.00  
+Why  it  failed  Insufficient  funds.  Balance:  10,000,  Attempted:  50,000  
+  
+How  the  Tables  Connect  (Relationships)  
+In  plain  English:  ·
+        
+A  user  can  be  a  customer  (1-to-1)  ·
+        
+A  customer  can  have  many  accounts  (1-to-many)  ·
+        
+An  account  can  have  many  transactions  (1-to-many)  ·
+        
+A  transfer  connects  two  accounts  and  two  transactions  ·
+        
+A  failed  log  entry  is  linked  to  the  user  who  tried  it  and  the  account  they  tried  
+it
+ 
+on
+ 
+Stored  Procedures  —  The  Business  Logic  
+A  stored  procedure  is  a  pre-written  set  of  SQL  instructions  saved  inside  the  
+database.
+ 
+Instead
+ 
+of
+ 
+the
+ 
+website
+ 
+writing
+ 
+SQL
+ 
+to
+ 
+move
+ 
+money
+ 
+around,
+ 
+it
+ 
+just
+ 
+says
+ 
+"hey
+ 
+database,
+ 
+run
+ 
+the
+ 
+deposit
+ 
+procedure."
+ 
+The
+ 
+database
+ 
+does
+ 
+all
+ 
+the
+ 
+work.
+ 
+
+
+=== PAGE 6 ===
+Why  does  this  matter?  Because  it  means  the  rules  live  in  the  database,  not  in  the  
+website
+ 
+code.
+ 
+Even
+ 
+if
+ 
+someone
+ 
+hacks
+ 
+the
+ 
+website,
+ 
+the
+ 
+database
+ 
+still
+ 
+enforces
+ 
+the
+ 
+rules.
+ We  have  9  stored  procedures:  
+Procedure  What  It  Does  Key  Rule  
+sp_register_customer  Creates  a  new  user  +  customer  profile  
+Both  are  created  together  or  neither  is  (atomic)  
+sp_open_account  Opens  a  new  bank  account  Generates  a  unique  account  number  automatically  
+sp_deposit  Adds  money  to  an  account  Checks  that  the  user  owns  the  account  first  
+sp_withdraw  Takes  money  out  of  an  account  
+Checks  ownership  AND  sufficient  balance  
+sp_transfer  Moves  money  between  accounts  
+Checks  ownership,  checks  balance,  moves  money  in  both  accounts  together  
+sp_get_balance  Returns  the  current  balance  Checks  that  the  user  owns  the  account  
+sp_transaction_history  Returns  all  transactions  for  an  account  
+Only  shows  transactions  for  accounts  the  user  owns  
+sp_mini_statement  Returns  the  last  5  transactions  
+Same  ownership  check  
+sp_banking_report  Returns  system-wide  statistics  
+Admin  only  
+  
+The  Ownership  Check  (Defense  in  Depth)  Every  financial  procedure  checks:  "Does  this  user  actually  own  this  account?"  Even  though  the  website  already  checks  this,  the  database  checks  AGAIN.  This  is  
+called
+ 
+defense
+ 
+in
+ 
+depth
+ 
+—
+ 
+two
+ 
+layers
+ 
+of
+ 
+security.
+ 
+If
+ 
+the
+ 
+website
+ 
+has
+ 
+a
+ 
+bug
+ 
+and
+ 
+sends
+ 
+the
+ 
+wrong
+ 
+user
+ 
+ID,
+ 
+the
+ 
+database
+ 
+still
+ 
+blocks
+ 
+the
+ 
+operation
+ 
+and
+ 
+logs
+ 
+the
+ 
+failed
+ 
+attempt.
+   
+
+
+=== PAGE 7 ===
+How  Locking  Prevents  Double  Spending  Imagine  two  people  somehow  try  to  withdraw  from  the  same  account  at  the  exact  
+same
+ 
+millisecond.
+ 
+Without
+ 
+protection:
+ ·
+        
+Both  read  the  balance  as  $1,000  ·
+        
+Both  think  there  is  enough  money  ·
+        
+Both  withdraw  $800  ·
+        
+Result:  $1,600  withdrawn  from  a  $1,000  account.  Money  was  created  out  of  
+thin
+ 
+air.
+ Our  solution:  FOR  UPDATE  locks.  When  a  stored  procedure  reads  the  balance,  it  
+also
+ 
+LOCKS
+ 
+that
+ 
+row.
+ 
+Any
+ 
+other
+ 
+procedure
+ 
+that
+ 
+tries
+ 
+to
+ 
+read
+ 
+the
+ 
+same
+ 
+row
+ 
+has
+ 
+to
+ 
+WAIT
+ 
+until
+ 
+the
+ 
+first
+ 
+one
+ 
+finishes.
+ This  means:  3.
+      
+Procedure  A  reads  balance  ($1,000),  locks  the  row  4.
+      
+Procedure  B  tries  to  read,  but  has  to  wait  5.
+      
+Procedure  A  withdraws  $800,  balance  becomes  $200,  COMMIT,  releases  
+lock
+ 6.
+      
+Procedure  B  finally  reads  balance  ($200),  sees  it  is  not  enough,  rejects  Only  one  succeeds.  This  is  correct.  
+How  We  Prevent  Deadlocks  in  Transfers  A  deadlock  is  when  two  operations  wait  for  each  other  forever:  ·
+        
+Transfer  A  locks  Account  1,  then  tries  to  lock  Account  2  ·
+        
+Transfer  B  locks  Account  2,  then  tries  to  lock  Account  1  ·
+        
+Both  are  stuck  waiting.  Forever.  Our  solution:  Always  lock  the  account  with  the  smaller  ID  first.  This  way,  both  
+transfers
+ 
+try
+ 
+to
+ 
+lock
+ 
+the
+ 
+same
+ 
+account
+ 
+first.
+ 
+One
+ 
+gets
+ 
+the
+ 
+lock,
+ 
+the
+ 
+other
+ 
+waits.
+ 
+No
+ 
+deadlock.
+ 
+Views  —  Pre-Built  Reports  
+A  view  is  a  saved  query.  Instead  of  writing  a  complicated  SQL  statement  every  time  
+we
+ 
+want
+ 
+to
+ 
+see
+ 
+account
+ 
+balances,
+ 
+we
+ 
+create
+ 
+a
+ 
+view
+ 
+once
+ 
+and
+ 
+just
+ 
+say
+ 
+"show
+ 
+me
+ 
+the
+ 
+view."
+ 
+
+
+=== PAGE 8 ===
+View  What  It  Shows  
+vw_account_balance  All  accounts  with  their  balances  and  owner  names  
+vw_transaction_history  All  transactions  with  account  and  customer  details  
+vw_customer_accounts  Each  customer  and  all  their  accounts  
+vw_failed_transaction_log  All  failed  transactions  with  reasons  and  user  info  
+vw_banking_report  Summary  statistics  (totals,  counts,  averages)  
+  
+Authentication  —  Who  Can  Do  What?  
+Two  Roles  
+Role  Can  Do  Cannot  Do  
+CUSTOMER  Register,  log  in,  open  accounts,  deposit,  withdraw,  transfer,  view  own  history  
+See  other  customers'  data,  view  failed  logs,  view  reports  
+ADMIN  Log  in,  see  all  customers,  accounts,  transactions,  failed  logs,  reports  
+Register  through  the  website  (admins  are  created  via  the  database  directly)  
+  
+How  Login  Works  (Simplified)  7.
+      
+Customer  types  email  and  password  on  the  login  page  8.
+      
+The  website  sends  this  to  the  backend  9.
+      
+The  backend  looks  up  the  email  in  the  database  10.
+   
+The  backend  compares  the  password  with  the  stored  encrypted  version  11.
+   
+If  it  matches,  the  backend  creates  a  token  (a  digital  pass)  and  sends  it  to  the  
+browser
+ 12.
+   
+Every  time  the  customer  clicks  something,  the  browser  sends  that  token  
+along
+ 13.
+   
+The  backend  checks  the  token  to  know  who  the  customer  is  and  what  they  
+can
+ 
+access
+ 14.
+   
+The  token  expires  after  24  hours  —  then  the  customer  has  to  log  in  again  
+
+
+=== PAGE 9 ===
+Logout  When  the  customer  clicks  "Logout",  the  token  is  deleted  from  their  browser.  Even  
+though
+ 
+the
+ 
+token
+ 
+technically
+ 
+still
+ 
+exists
+ 
+until
+ 
+it
+ 
+expires,
+ 
+the
+ 
+browser
+ 
+can
+ 
+no
+ 
+longer
+ 
+send
+ 
+it,
+ 
+so
+ 
+the
+ 
+customer
+ 
+is
+ 
+effectively
+ 
+logged
+ 
+out.
+ 
+The  Website  Pages  
+What  Customers  See  (7  pages)  
+Page  What's  On  It  
+Register  Form  to  create  an  account  (name,  email,  password,  etc.)  
+Login  Email  +  password  form  
+Dashboard  Overview:  account  cards  showing  balances,  recent  transactions,  quick  action  buttons  
+Accounts  Open  a  new  account,  see  all  accounts  with  balances  
+Transactions  Deposit  and  withdraw  money  forms  
+Transfers  Transfer  money  to  another  account  by  entering  their  account  number  
+History  Full  transaction  history  table  +  a  "mini  statement"  button  (last  5  only)  
+  
+What  Admins  See  (5  pages)  
+Page  What's  On  It  
+Dashboard  Big-picture  stats:  total  customers,  total  money  in  the  system,  etc.  
+Customers  List  of  all  customers  and  their  accounts  
+Transactions  Every  transaction  across  the  entire  system  
+Failed  Logs  Every  rejected  transaction  with  the  reason  why  
+Reports  10  different  banking  reports  
+  
+
+
+=== PAGE 10 ===
+Banking  Reports  (Admin  Only)  
+#  Report  
+1  Total  number  of  customers  
+2  Total  number  of  accounts  
+3  Total  money  across  all  accounts  
+4  Total  deposits  made  
+5  Total  withdrawals  made  
+6  Total  transfers  made  
+7  Number  of  failed  transactions  
+8  Account  balances  grouped  by  customer  
+9  Transaction  totals  grouped  by  type  (deposit,  withdrawal,  etc.)  
+10  Daily  transaction  summary  (how  much  moved  each  day)  
+  
+The  Demo  Flow  —  What  We  Show  
+Allenetor
+ 
+This  is  the  exact  sequence  we  walk  through  during  the  presentation:  
+Step  What  We  Do  What  It  Proves  
+1  Register  a  customer  "John  Doe"  
+Registration  works,  user  +  customer  created  together  
+2  Log  in  as  John  Authentication  works  
+3  Open  a  Savings  account  Account  creation  works,  unique  number  generated  
+4  Deposit  100,000  Deposit  works,  balance  updates  to  100,000  
+5  Check  balance  Balance  view  works,  shows  100,000  
+6  Withdraw  30,000  Withdrawal  works,  balance  updates  to  70,000  
+
+
+=== PAGE 11 ===
+7  Try  to  withdraw  500,000  FAILS  —  proves  insufficient  funds  check  works  
+8  Show  the  failed  transaction  log  (admin)  
+The  failed  attempt  was  recorded  with  the  reason  
+9  Register  "Jane  Smith",  open  an  account  
+Second  customer  for  transfer  testing  
+10  Transfer  20,000  from  John  to  Jane  
+Transfer  works,  John:  50,000,  Jane:  20,000  
+11  Show  John's  transaction  history  
+All  transactions  visible  in  order  
+12  Show  John's  mini  statement  Only  the  last  5  transactions  
+13  Log  in  as  Admin  Admin  authentication  works  
+14  Show  banking  reports  All  10  reports  with  real  numbers  
+15  Show  raw  SQL  scripts  Prove  the  database  design  is  solid  
+  
+SQL  Scripts  We  Are  Delivering  
+Allenetor  would   want  to  see  the  raw  SQL.  We  have  7  script  files:  
+File  What  It  Does  
+01_create_database.sql  Creates  the  database  itself  
+02_schema.sql  Creates  all  6  tables  with  their  rules  and  relationships  
+03_indexes.sql  Adds  performance  optimizations  
+04_stored_procedures.sql  Creates  all  9  stored  procedures  
+05_views.sql  Creates  all  5  views  
+06_seed_data.sql  Adds  sample  data  (including  the  admin  account)  
+07_verification_tests.sql  SQL  tests  that  PROVE  the  system  works  correctly  
+  He  can  run  these  scripts  1  through  7  in  order  to  build  the  entire  database  from  
+scratch,
+ 
+without
+ 
+ever
+ 
+touching
+ 
+the
+ 
+website.
+ 
+
+
+=== PAGE 12 ===
+Verification  Tests  (What  the  SQL  Tests  
+Prove)
+ 
+Test  What  It  Checks  
+Test  1  A  deposit  increases  the  balance  correctly  
+Test  2  A  withdrawal  decreases  the  balance  correctly  
+Test  3  A  withdrawal  with  not  enough  money  is  REJECTED  and  logged  
+Test  4  A  transfer  moves  money  between  two  accounts  correctly  
+Test  5  A  transfer  with  not  enough  money  is  REJECTED  and  logged  
+Test  6  A  transfer  to  the  SAME  account  is  blocked  
+Test  7  A  user  trying  to  withdraw  from  someone  else's  account  is  REJECTED  
+Test  8  Transaction  history  returns  all  records  in  order  
+Test  9  Mini  statement  returns  only  the  last  5  records  
+Test  10  Two  simultaneous  withdrawals:  only  one  succeeds  (concurrency  proof)  
+  
+Default  Login  Credentials  (For  Testing)  
+Role  Email  Password  
+Admin  admin@bankapp.com  admin123  
+  Customers  are  created  through  the  registration  page.  
+ 
+
+
+=== PAGE 13 ===
+Key  Terms  Glossary  
+Term  Plain  English  
+Table  A  spreadsheet  in  the  database.  Each  one  stores  one  type  of  thing.  
+Row  /  Record  One  entry  in  a  table  (like  one  row  in  a  spreadsheet).  
+Column  /  Field  One  piece  of  information  (like  one  column  in  a  spreadsheet).  
+Foreign  Key  (FK)  A  link  from  one  table  to  another.  Like  saying  "this  account  belongs  to  customer  #5."  
+Primary  Key  (PK)  The  unique  ID  for  each  row.  No  two  rows  can  have  the  same  one.  
+Stored  Procedure  A  saved  set  of  instructions  in  the  database.  The  website  says  "run  this"  and  the  database  does  the  work.  
+View  A  saved  query.  Instead  of  writing  the  same  complex  lookup  every  time,  we  save  it  and  give  it  a  name.  
+Transaction  (DB)  A  group  of  database  operations  that  must  all  succeed  or  all  fail.  Not  the  same  as  a  banking  transaction.  
+COMMIT  Save  everything  we  just  did.  
+ROLLBACK  Undo  everything  we  just  did.  
+FOR  UPDATE  A  lock  that  says  "nobody  else  can  touch  this  row  until  I  am  done  with  it."  
+DECIMAL  A  number  type  that  handles  money  exactly.  FLOAT  can  have  tiny  rounding  errors.  
+JWT  (Token)  A  digital  pass.  After  you  log  in,  the  server  gives  you  one.  You  show  it  on  every  request.  
+bcrypt  A  one-way  encryption  for  passwords.  You  can  turn  a  password  INTO  a  hash,  but  not  back.  
+InnoDB  The  engine  inside  MySQL  that  supports  transactions  and  row  locking.  
+API  Route  A  URL  on  the  backend  that  the  frontend  calls  to  get  or  send  data.  
+
+
+=== PAGE 14 ===
+Atomic  All-or-nothing.  Either  every  step  succeeds,  or  none  of  them  do.  
+Audit  Trail  A  complete  record  of  what  happened  and  when,  so  you  can  trace  any  event.  
+Deadlock  Two  operations  stuck  waiting  for  each  other  forever.  We  prevent  this  with  lock  ordering.  
+Defense  in  Depth  Multiple  layers  of  security.  If  one  layer  fails,  the  next  one  catches  it.  
+Normalization  Organizing  data  so  nothing  is  stored  in  two  places.  
+Seed  Data  Pre-loaded  sample  data  so  the  system  is  not  empty  when  you  first  start  it.  
+  
+ 

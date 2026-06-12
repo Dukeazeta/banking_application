@@ -1,0 +1,241 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+
+type UserProfile = {
+  userId: number;
+  email: string;
+  role: string;
+};
+
+type CustomerProfile = {
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  address: string | null;
+};
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [customer, setCustomer] = useState<CustomerProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    async function fetchProfiles() {
+      try {
+        const authRes = await fetch("/api/auth/me");
+        if (!authRes.ok) {
+          router.replace("/login?next=" + encodeURIComponent(pathname));
+          return;
+        }
+        
+        const authData = await authRes.json();
+        setUser(authData.user);
+
+        const customerRes = await fetch("/api/customers");
+        if (customerRes.ok) {
+          const customerData = await customerRes.json();
+          setCustomer(customerData.customer);
+        }
+      } catch (err) {
+        console.error("Dashboard profile fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProfiles();
+  }, [router, pathname]);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
+    router.refresh();
+    router.push("/login");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[#f6f9fc]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#533afd] border-t-transparent" />
+        </div>
+      </div>
+    );
+  }
+
+  const navItems = [
+    { name: "Overview", path: "/dashboard", code: "OV" },
+    { name: "Deposit", path: "/dashboard/deposit", code: "DP" },
+    { name: "Withdraw", path: "/dashboard/withdraw", code: "WD" },
+    { name: "Transfer", path: "/dashboard/transfer", code: "TR" },
+  ];
+
+  const initials = customer
+    ? `${customer.first_name?.[0] || ""}${customer.last_name?.[0] || ""}`.toUpperCase()
+    : user
+    ? user.email?.[0].toUpperCase() || "U"
+    : "U";
+
+  return (
+    <div className="min-h-[100dvh] bg-[#f6f9fc] text-[#0d253d] font-sans selection:bg-[#533afd]/20">
+      
+      <header className="fixed top-0 z-[60] flex h-[64px] w-full items-center justify-between bg-white px-4 md:px-6 shadow-[0_1px_3px_rgba(0,55,112,0.08)]">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e3e8ee] bg-white text-[#64748d] shadow-[0_1px_3px_rgba(0,55,112,0.08)] transition-colors hover:bg-[#f6f9fc] hover:text-[#0d253d] md:hidden"
+            aria-label="Toggle navigation"
+            aria-expanded={sidebarOpen}
+          >
+            <span className="flex h-3.5 w-4 flex-col justify-between" aria-hidden="true">
+              <span className="h-px w-full rounded-full bg-current" />
+              <span className="h-px w-full rounded-full bg-current" />
+              <span className="h-px w-full rounded-full bg-current" />
+            </span>
+          </button>
+          
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-85 md:w-[200px]">
+            <div className="h-[7px] w-[7px] rounded-full bg-[#533afd]" />
+            <span className="landing-nav-brand hidden sm:block">SecureBank NG</span>
+          </Link>
+        </div>
+
+        {/* Center Title - Minimalist */}
+        <div className="hidden md:block absolute left-1/2 -translate-x-1/2">
+          <span className="text-[11px] font-[400] text-[#64748d] uppercase tracking-[0.1em] [font-feature-settings:'ss01']">
+            Dashboard
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="hidden text-[14px] font-[400] text-[#0d253d] [font-feature-settings:'ss01'] sm:block">
+            {customer ? `${customer.first_name} ${customer.last_name}` : "User"}
+          </div>
+          
+          {/* User Avatar Circle */}
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f6f9fc] text-[#0d253d] border border-[#e3e8ee] text-[11px] font-[400] shadow-sm">
+            {initials}
+          </div>
+        </div>
+      </header>
+
+      <div className="flex min-h-[100dvh] pt-[64px]">
+        <aside
+          className={`
+            group/sidebar fixed bottom-0 left-0 top-[64px] z-50 flex w-[272px] flex-col bg-transparent transition-transform duration-300 md:z-40
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
+          `}
+        >
+          <div className="relative flex min-h-0 w-[272px] flex-1 flex-col overflow-hidden border-r border-[#e3e8ee] bg-white shadow-[0_1px_3px_rgba(0,55,112,0.08)] transition-[width] duration-300 ease-out md:w-[80px] md:group-hover/sidebar:w-[272px] md:group-focus-within/sidebar:w-[272px]">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_0%_0%,#f5e9d4_0,#f5e9d4_22%,transparent_54%),radial-gradient(circle_at_100%_0%,#b9b9f9_0,#b9b9f9_18%,transparent_50%),radial-gradient(circle_at_70%_35%,#f96bee_0,#f96bee_8%,transparent_40%)] opacity-55 blur-2xl" />
+
+            <div className="relative border-b border-[#e3e8ee] px-5 py-5">
+              <div className="flex min-h-9 items-center">
+                <div className="hidden h-9 w-9 shrink-0 items-center justify-center md:flex md:group-hover/sidebar:hidden md:group-focus-within/sidebar:hidden">
+                  <div className="h-5 w-[3px] rounded-full bg-[#533afd]" />
+                </div>
+                <div className="min-w-0 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover/sidebar:opacity-100 md:group-focus-within/sidebar:opacity-100">
+                  <p className="text-[10px] font-[400] uppercase tracking-[0.1px] text-[#64748d] [font-feature-settings:'ss01']">
+                    Customer banking
+                  </p>
+                  <p className="mt-1 text-[18px] font-[300] leading-[1.1] tracking-[-0.18px] text-[#0d253d] [font-feature-settings:'ss01']">
+                    SecureBank NG
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <nav className="relative flex-1 space-y-1 overflow-hidden px-3 py-4">
+              {navItems.map((item) => {
+                const isActive = item.path === "/dashboard" 
+                  ? pathname === "/dashboard" 
+                  : pathname.startsWith(item.path);
+
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.path}
+                    className={`
+                      group flex items-center gap-3 rounded-[12px] px-3 py-3 transition-all duration-200 whitespace-nowrap
+                      ${isActive 
+                        ? "bg-[#f6f9fc] text-[#533afd] shadow-[0_1px_3px_rgba(0,55,112,0.08)] ring-1 ring-[#e3e8ee]" 
+                        : "text-[#64748d] hover:bg-[#f6f9fc] hover:text-[#0d253d] hover:translate-x-0.5"
+                      }
+                    `}
+                  >
+                    <span
+                      className={`
+                        flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-[400] tracking-[0.1px] [font-feature-settings:'tnum','ss01']
+                        ${isActive ? "bg-[#533afd] text-white" : "bg-white text-[#64748d] ring-1 ring-[#e3e8ee] group-hover:text-[#533afd]"}
+                      `}
+                    >
+                      {item.code}
+                    </span>
+                    <span className={`opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover/sidebar:opacity-100 md:group-focus-within/sidebar:opacity-100 text-[14px] [font-feature-settings:'ss01'] ${isActive ? "font-[400]" : "font-[300]"}`}>
+                      {item.name}
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="relative border-t border-[#e3e8ee] p-3">
+              <div className="mb-3 overflow-hidden rounded-[12px] bg-[#f6f9fc] px-3 py-3 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover/sidebar:opacity-100 md:group-focus-within/sidebar:opacity-100">
+                <p className="text-[10px] font-[400] uppercase tracking-[0.1px] text-[#64748d] [font-feature-settings:'ss01']">
+                  Signed in
+                </p>
+                <p className="mt-1 truncate text-[13px] font-[300] text-[#0d253d] [font-feature-settings:'ss01']">
+                  {customer ? `${customer.first_name} ${customer.last_name}` : user?.email}
+                </p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-full border border-[#e3e8ee] bg-white px-3 py-2.5 text-[#64748d] transition-colors hover:bg-[#f6f9fc] hover:text-[#0d253d] whitespace-nowrap"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f6f9fc] text-[10px] font-[400] text-[#64748d] [font-feature-settings:'ss01']">
+                  SO
+                </span>
+                <span className="opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover/sidebar:opacity-100 md:group-focus-within/sidebar:opacity-100 text-[14px] font-[400] [font-feature-settings:'ss01']">
+                  Sign Out
+                </span>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {sidebarOpen && (
+          <div
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-[#0d253d]/40 backdrop-blur-sm md:hidden"
+          />
+        )}
+
+        <main
+          className="flex flex-1 flex-col transition-all duration-300 md:pl-[80px]"
+        >
+          <div className="w-full flex-1 px-4 sm:px-8 py-10 lg:px-12">
+            <div className="animate-fade-in max-w-[1000px] mx-auto">{children}</div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

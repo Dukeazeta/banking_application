@@ -8,6 +8,7 @@ import {
   requireRole,
 } from "@/lib/api";
 import { callProcedure, query } from "@/lib/db";
+import type { AccountType } from "@/lib/accounts";
 
 type OpenAccountBody = {
   accountType?: unknown;
@@ -16,7 +17,7 @@ type OpenAccountBody = {
 type AccountRow = RowDataPacket & {
   account_id: number;
   account_number: string;
-  account_type: "SAVINGS" | "CHECKING";
+  account_type: AccountType;
   balance: string;
   status: "ACTIVE" | "CLOSED" | "FROZEN";
   opened_at: Date;
@@ -59,9 +60,9 @@ export async function POST(request: NextRequest) {
   const body = await readJsonBody<OpenAccountBody>(request);
   const accountType = asRequiredString(body?.accountType)?.toUpperCase();
 
-  if (accountType !== "SAVINGS" && accountType !== "CHECKING") {
+  if (accountType !== "SAVINGS" && accountType !== "CURRENT") {
     return NextResponse.json(
-      { error: "Account type must be SAVINGS or CHECKING." },
+      { error: "Account type must be SAVINGS or CURRENT." },
       { status: 400 },
     );
   }

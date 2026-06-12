@@ -69,7 +69,7 @@ CREATE TABLE accounts (
     account_id      INT             AUTO_INCREMENT PRIMARY KEY,
     customer_id     INT             NOT NULL,
     account_number  VARCHAR(20)     NOT NULL,
-    account_type    ENUM('SAVINGS', 'CHECKING') NOT NULL,
+    account_type    ENUM('SAVINGS', 'CURRENT') NOT NULL,
     balance         DECIMAL(15,2)   NOT NULL DEFAULT 0.00,
     status          ENUM('ACTIVE', 'CLOSED', 'FROZEN') NOT NULL DEFAULT 'ACTIVE',
     opened_at       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
