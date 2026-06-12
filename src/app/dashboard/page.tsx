@@ -145,6 +145,7 @@ export default function DashboardOverview() {
   const totalAssets = accounts
     .filter((acc) => acc.status === "ACTIVE")
     .reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
+  const accountActionLabel = accounts.length > 0 ? "Add account" : "Open new account";
 
   return (
     <div className="space-y-16 pb-16 font-sans">
@@ -185,10 +186,41 @@ export default function DashboardOverview() {
         
         <button
           onClick={() => setOpenModal(true)}
-          className="inline-flex h-10 items-center justify-center rounded-full bg-[#533afd] px-6 text-[14px] font-[400] text-white hover:bg-[#4434d4] transition-colors [font-feature-settings:'ss01'] shrink-0 shadow-sm"
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#533afd] px-5 text-[14px] font-[400] text-white shadow-sm transition-colors hover:bg-[#4434d4] [font-feature-settings:'ss01'] sm:w-auto md:h-10 md:px-6"
         >
-          Open new account
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          {accountActionLabel}
         </button>
+      </section>
+
+      {/* Quick Actions (Mobile Navigation Replacement) */}
+      <section className="flex justify-center gap-12 md:hidden">
+        <Link
+          href="/dashboard/withdraw"
+          className="group flex flex-col items-center justify-center gap-3 transition-all active:scale-95"
+        >
+          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#533afd] text-white shadow-lg shadow-[#533afd]/20 hover:bg-[#4434d4] hover:shadow-xl hover:-translate-y-0.5 transition-all">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <span className="text-[14px] font-[500] text-[#0d253d] [font-feature-settings:'ss01'] group-hover:text-[#533afd] transition-colors">Withdraw</span>
+        </Link>
+
+        <Link
+          href="/dashboard/transfer"
+          className="group flex flex-col items-center justify-center gap-3 transition-all active:scale-95"
+        >
+          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#533afd] text-white shadow-lg shadow-[#533afd]/20 hover:bg-[#4434d4] hover:shadow-xl hover:-translate-y-0.5 transition-all">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          </div>
+          <span className="text-[14px] font-[500] text-[#0d253d] [font-feature-settings:'ss01'] group-hover:text-[#533afd] transition-colors">Transfer</span>
+        </Link>
       </section>
 
       {/* 2. Accounts Portfolio */}
@@ -336,7 +368,7 @@ export default function DashboardOverview() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0d253d]/40 backdrop-blur-sm animate-fade-in">
           <div className="w-full max-w-[420px] rounded-[16px] bg-white border border-[#e3e8ee] p-8 shadow-[0_8px_24px_rgba(0,55,112,0.08)] space-y-8">
             <div className="space-y-2">
-              <h2 className="text-[22px] font-[300] tracking-[-0.22px] text-[#0d253d] [font-feature-settings:'ss01']">Open account</h2>
+              <h2 className="text-[22px] font-[300] tracking-[-0.22px] text-[#0d253d] [font-feature-settings:'ss01']">{accountActionLabel}</h2>
               <p className="text-[13px] text-[#64748d]">
                 Initialize a new Savings or Current record.
               </p>

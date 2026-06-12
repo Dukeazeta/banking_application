@@ -1809,7 +1809,7 @@ hr {
    DESIGN.MD: display-xxl = 56px, weight 300, -1.4px tracking */
 .landing-display {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-size: clamp(60px, 8vw, 96px);
+  font-size: clamp(36px, 8vw, 96px);
   font-weight: 300;
   line-height: 1.0;
   letter-spacing: -2.4px;
@@ -1821,7 +1821,7 @@ hr {
    DESIGN.MD: body-lg = 16px, weight 300, 1.4 line-height */
 .landing-body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-size: 26px;
+  font-size: clamp(18px, 4vw, 26px);
   font-weight: 300;
   line-height: 1.55;
   letter-spacing: 0;

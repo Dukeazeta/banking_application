@@ -98,19 +98,6 @@ export default function DashboardLayout({
       
       <header className="fixed top-0 z-[60] flex h-[64px] w-full items-center justify-between bg-white px-4 md:px-6 shadow-[0_1px_3px_rgba(0,55,112,0.08)]">
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e3e8ee] bg-white text-[#64748d] shadow-[0_1px_3px_rgba(0,55,112,0.08)] transition-colors hover:bg-[#f6f9fc] hover:text-[#0d253d] md:hidden"
-            aria-label="Toggle navigation"
-            aria-expanded={sidebarOpen}
-          >
-            <span className="flex h-3.5 w-4 flex-col justify-between" aria-hidden="true">
-              <span className="h-px w-full rounded-full bg-current" />
-              <span className="h-px w-full rounded-full bg-current" />
-              <span className="h-px w-full rounded-full bg-current" />
-            </span>
-          </button>
-          
           <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-85 md:w-[200px]">
             <div className="h-[7px] w-[7px] rounded-full bg-[#533afd]" />
             <span className="landing-nav-brand hidden sm:block">SecureBank NG</span>
@@ -228,7 +215,7 @@ export default function DashboardLayout({
         )}
 
         <main
-          className="flex flex-1 flex-col transition-all duration-300 md:pl-[80px]"
+          className="flex flex-1 flex-col transition-all duration-300 md:pl-[80px] min-w-0"
         >
           <div className="w-full flex-1 px-4 sm:px-8 py-10 lg:px-12">
             <div className="animate-fade-in max-w-[1000px] mx-auto">{children}</div>

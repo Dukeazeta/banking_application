@@ -211,7 +211,7 @@ export default function TellerLayout({
         )}
 
         <main
-          className="flex flex-1 flex-col transition-all duration-300 md:pl-[80px]"
+          className="flex flex-1 flex-col transition-all duration-300 md:pl-[80px] min-w-0"
         >
           <div className="w-full flex-1 px-4 sm:px-8 py-10 lg:px-12">
             <div className="animate-fade-in max-w-[1000px] mx-auto">{children}</div>
