@@ -32,7 +32,9 @@ function LoginContent() {
         if (res.ok) {
           const data = (await res.json()) as UserProfile;
           if (data.user) {
-            router.replace(data.user.role === "ADMIN" ? "/admin" : "/dashboard");
+            router.replace(
+              data.user.role === "ADMIN" ? "/admin" : data.user.role === "TELLER" ? "/teller" : "/dashboard",
+            );
           }
         }
       } catch (err) {
@@ -68,7 +70,9 @@ function LoginContent() {
 
       // Successful login
       router.refresh();
-      router.push(data.user.role === "ADMIN" ? "/admin" : nextParam);
+      router.push(
+        data.user.role === "ADMIN" ? "/admin" : data.user.role === "TELLER" ? "/teller" : nextParam,
+      );
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

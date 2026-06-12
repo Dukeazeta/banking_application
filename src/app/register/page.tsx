@@ -29,7 +29,9 @@ export default function Register() {
         if (res.ok) {
           const data = await res.json();
           if (data.user) {
-            router.replace(data.user.role === "ADMIN" ? "/admin" : "/dashboard");
+            router.replace(
+              data.user.role === "ADMIN" ? "/admin" : data.user.role === "TELLER" ? "/teller" : "/dashboard",
+            );
           }
         }
       } catch (err) {

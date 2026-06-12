@@ -184,12 +184,6 @@ export default function AccountDetail({
 
         <div className="flex flex-wrap md:flex-col lg:flex-row items-center gap-3 w-full md:w-auto">
           <Link
-            href={`/dashboard/deposit?accountId=${account.account_id}`}
-            className="flex-1 md:flex-none inline-flex h-10 items-center justify-center rounded-full border border-[#e3e8ee] bg-white px-6 text-[14px] font-[400] text-[#0d253d] hover:border-[#a8c3de] hover:bg-[#f6f9fc] transition-colors"
-          >
-            Deposit
-          </Link>
-          <Link
             href={`/dashboard/withdraw?accountId=${account.account_id}`}
             className="flex-1 md:flex-none inline-flex h-10 items-center justify-center rounded-full border border-[#e3e8ee] bg-white px-6 text-[14px] font-[400] text-[#0d253d] hover:border-[#a8c3de] hover:bg-[#f6f9fc] transition-colors"
           >

@@ -84,7 +84,7 @@ SELECT
     f.created_at
 FROM failed_transaction_log f
 JOIN users u ON f.user_id = u.user_id
-JOIN accounts a ON f.account_id = a.account_id
+LEFT JOIN accounts a ON f.account_id = a.account_id
 LEFT JOIN accounts ta ON f.target_account_id = ta.account_id
 ORDER BY f.created_at DESC;
 

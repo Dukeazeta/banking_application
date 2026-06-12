@@ -15,8 +15,9 @@ SELECT '============================================' AS '---';
 -- Check starting balance of Zainab (User 4, Account 5) -> Should be 10,000
 SELECT balance AS starting_balance FROM accounts WHERE account_id = 5;
 
--- Zainab deposits 5,000
-CALL sp_deposit(4, 5, 5000.00, 'Test Deposit');
+-- Teller deposits 5,000 into Zainab's current account
+SELECT @zainab_deposit_acc_num := account_number FROM accounts WHERE account_id = 5;
+CALL sp_deposit(5, @zainab_deposit_acc_num, 5000.00, 'Test Deposit');
 
 -- Verify balance is now 15,000
 SELECT balance AS new_balance FROM accounts WHERE account_id = 5;

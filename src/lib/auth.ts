@@ -3,7 +3,7 @@ import "server-only";
 import bcrypt from "bcryptjs";
 import jwt, { type JwtPayload, type SignOptions } from "jsonwebtoken";
 
-export type AuthRole = "CUSTOMER" | "ADMIN";
+export type AuthRole = "CUSTOMER" | "ADMIN" | "TELLER";
 
 export type AuthTokenPayload = {
   userId: number;
@@ -35,7 +35,7 @@ function getJwtSecret(): string {
 }
 
 function isAuthRole(value: unknown): value is AuthRole {
-  return value === "CUSTOMER" || value === "ADMIN";
+  return value === "CUSTOMER" || value === "ADMIN" || value === "TELLER";
 }
 
 function isAuthTokenPayload(value: string | JwtPayload): value is AuthTokenPayload {

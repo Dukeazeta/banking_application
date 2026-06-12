@@ -4,7 +4,7 @@
 -- ============================================================================
 -- Contains all business logic for the banking system.
 -- Enforces:
---   1. Database-Level Authorization (verifying p_user_id owns the account)
+--   1. Database-Level Authorization (verifying the actor can perform the operation)
 --   2. Atomicity (START TRANSACTION / COMMIT / ROLLBACK)
 --   3. Concurrency Control (SELECT ... FOR UPDATE)
 --   4. Deadlock Prevention (Lock ordering by account_id)
@@ -90,17 +90,19 @@ END //
 
 -- ============================================================================
 -- sp_deposit
--- Deposits money into an account, ensuring the user owns it.
+-- Deposits money into an active account by account number.
+-- Only active tellers can post deposits.
 -- ============================================================================
 DROP PROCEDURE IF EXISTS sp_deposit //
 CREATE PROCEDURE sp_deposit(
-    IN p_user_id INT,
-    IN p_account_id INT,
+    IN p_teller_user_id INT,
+    IN p_account_number VARCHAR(20),
     IN p_amount DECIMAL(15,2),
     IN p_description VARCHAR(255)
 )
 BEGIN
-    DECLARE v_verified_account_id INT;
+    DECLARE v_verified_teller_id INT;
+    DECLARE v_account_id INT;
     DECLARE v_current_balance DECIMAL(15,2);
     DECLARE v_new_balance DECIMAL(15,2);
     DECLARE v_txn_ref VARCHAR(30);
@@ -114,33 +116,37 @@ BEGIN
 
     START TRANSACTION;
 
-    -- Verify ownership and ACTIVE status, and acquire exclusive lock
-    SELECT a.account_id, a.balance INTO v_verified_account_id, v_current_balance
-    FROM accounts a
-    JOIN customers c ON a.customer_id = c.customer_id
-    WHERE a.account_id = p_account_id
-      AND c.user_id = p_user_id
-      AND a.status = 'ACTIVE'
+    SELECT u.user_id INTO v_verified_teller_id
+    FROM users u
+    JOIN tellers t ON t.user_id = u.user_id
+    WHERE u.user_id = p_teller_user_id
+      AND u.role = 'TELLER'
+      AND t.status = 'ACTIVE';
+
+    SELECT account_id, balance INTO v_account_id, v_current_balance
+    FROM accounts
+    WHERE account_number = p_account_number
+      AND status = 'ACTIVE'
     FOR UPDATE;
 
-    IF v_verified_account_id IS NULL THEN
-        -- Ownership failed or account not active/found
-        -- We insert to log, but MUST use an autonomous transaction equivalent or insert before rollback if we were rolling back.
-        -- In MySQL, if we rollback the transaction, the log insert is also rolled back.
-        -- To persist the log, we can commit it and exit.
+    IF v_verified_teller_id IS NULL THEN
         INSERT INTO failed_transaction_log (user_id, account_id, transaction_type, attempted_amount, failure_reason)
-        VALUES (p_user_id, p_account_id, 'DEPOSIT', p_amount, 'Account not found, not active, or not owned by user');
+        VALUES (p_teller_user_id, v_account_id, 'DEPOSIT', p_amount, 'Teller not found or inactive');
+        COMMIT;
+    ELSEIF v_account_id IS NULL THEN
+        INSERT INTO failed_transaction_log (user_id, account_id, transaction_type, attempted_amount, failure_reason)
+        VALUES (p_teller_user_id, NULL, 'DEPOSIT', p_amount, 'Destination account not found or not active');
         COMMIT;
     ELSE
         SET v_new_balance = v_current_balance + p_amount;
         SET v_txn_ref = CONCAT('TXN-', DATE_FORMAT(NOW(), '%Y%m%d'), '-', UPPER(SUBSTRING(UUID(), 1, 8)));
 
         -- Update balance
-        UPDATE accounts SET balance = v_new_balance WHERE account_id = p_account_id;
+        UPDATE accounts SET balance = v_new_balance WHERE account_id = v_account_id;
 
         -- Record transaction
         INSERT INTO transactions (transaction_reference, account_id, performed_by_user_id, transaction_type, amount, balance_after, status, description)
-        VALUES (v_txn_ref, p_account_id, p_user_id, 'DEPOSIT', p_amount, v_new_balance, 'SUCCESS', p_description);
+        VALUES (v_txn_ref, v_account_id, p_teller_user_id, 'DEPOSIT', p_amount, v_new_balance, 'SUCCESS', p_description);
 
         COMMIT;
     END IF;

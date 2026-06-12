@@ -16,7 +16,9 @@ export default function Home() {
         if (res.ok) {
           const data = await res.json();
           if (data.user) {
-            router.replace(data.user.role === "ADMIN" ? "/admin" : "/dashboard");
+            router.replace(
+              data.user.role === "ADMIN" ? "/admin" : data.user.role === "TELLER" ? "/teller" : "/dashboard",
+            );
             return;
           }
         }
@@ -83,21 +85,21 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero - left-aligned, single moment, max 4 text elements */}
-      <main className="relative z-10 flex flex-1 items-center px-6 md:px-10">
-        <div className="w-full max-w-[620px] space-y-6 pb-16">
+      {/* Hero - centered, single moment, max 4 text elements */}
+      <main className="relative z-10 flex flex-1 items-center justify-center px-6 md:px-10 text-center">
+        <div className="w-full max-w-[1000px] flex flex-col items-center space-y-8 pb-16">
           {/* Headline - max 2 lines, weight 300, negative tracking */}
           <h1 className="landing-display">
             Digital banking for Nigerian customers
           </h1>
 
           {/* Subtext - under 20 words, max 4 lines */}
-          <p className="landing-body max-w-[480px]">
+          <p className="landing-body max-w-[640px]">
             Naira accounts, secure transfers, and real-time ledger reconciliation for everyday banking.
           </p>
 
           {/* CTAs - 1 primary + 1 secondary, no wrap */}
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:gap-4 justify-center">
             <Link
               href="/register"
               className="landing-btn-primary"

@@ -10,14 +10,7 @@ type UserProfile = {
   role: string;
 };
 
-type CustomerProfile = {
-  first_name: string;
-  last_name: string;
-  phone: string | null;
-  address: string | null;
-};
-
-export default function DashboardLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -26,13 +19,12 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchProfiles() {
+    async function fetchProfile() {
       try {
         const authRes = await fetch("/api/auth/me");
         if (!authRes.ok) {
@@ -41,20 +33,18 @@ export default function DashboardLayout({
         }
         
         const authData = await authRes.json();
-        setUser(authData.user);
-
-        const customerRes = await fetch("/api/customers");
-        if (customerRes.ok) {
-          const customerData = await customerRes.json();
-          setCustomer(customerData.customer);
+        if (authData.user.role !== "ADMIN") {
+          router.replace("/dashboard");
+          return;
         }
+        setUser(authData.user);
       } catch (err) {
-        console.error("Dashboard profile fetch failed:", err);
+        console.error("Admin profile fetch failed:", err);
       } finally {
         setLoading(false);
       }
     }
-    fetchProfiles();
+    fetchProfile();
   }, [router, pathname]);
 
   useEffect(() => {
@@ -82,16 +72,12 @@ export default function DashboardLayout({
   }
 
   const navItems = [
-    { name: "Overview", path: "/dashboard", code: "OV" },
-    { name: "Withdraw", path: "/dashboard/withdraw", code: "WD" },
-    { name: "Transfer", path: "/dashboard/transfer", code: "TR" },
+    { name: "Overview", path: "/admin", code: "OV", exact: true },
+    { name: "Customers", path: "/admin/customers", code: "CU", exact: false },
+    { name: "Security Logs", path: "/admin/logs", code: "SL", exact: false },
   ];
 
-  const initials = customer
-    ? `${customer.first_name?.[0] || ""}${customer.last_name?.[0] || ""}`.toUpperCase()
-    : user
-    ? user.email?.[0].toUpperCase() || "U"
-    : "U";
+  const initials = user ? user.email?.[0].toUpperCase() || "A" : "A";
 
   return (
     <div className="min-h-[100dvh] bg-[#f6f9fc] text-[#0d253d] font-sans selection:bg-[#533afd]/20">
@@ -111,25 +97,23 @@ export default function DashboardLayout({
             </span>
           </button>
           
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-85 md:w-[200px]">
+          <Link href="/admin" className="flex items-center gap-2 hover:opacity-85 md:w-[200px]">
             <div className="h-[7px] w-[7px] rounded-full bg-[#533afd]" />
             <span className="landing-nav-brand hidden sm:block">SecureBank NG</span>
           </Link>
         </div>
 
-        {/* Center Title - Minimalist */}
         <div className="hidden md:block absolute left-1/2 -translate-x-1/2">
           <span className="text-[11px] font-[400] text-[#64748d] uppercase tracking-[0.1em] [font-feature-settings:'ss01']">
-            Dashboard
+            Admin Portal
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="hidden text-[14px] font-[400] text-[#0d253d] [font-feature-settings:'ss01'] sm:block">
-            {customer ? `${customer.first_name} ${customer.last_name}` : "User"}
+            System Administrator
           </div>
           
-          {/* User Avatar Circle */}
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f6f9fc] text-[#0d253d] border border-[#e3e8ee] text-[11px] font-[400] shadow-sm">
             {initials}
           </div>
@@ -149,14 +133,14 @@ export default function DashboardLayout({
             <div className="relative border-b border-[#e3e8ee] px-5 py-5">
               <div className="flex min-h-9 items-center">
                 <div className="hidden h-9 w-9 shrink-0 items-center justify-center md:flex md:group-hover/sidebar:hidden md:group-focus-within/sidebar:hidden">
-                  <div className="h-5 w-[3px] rounded-full bg-[#533afd]" />
+                  <div className="h-5 w-[3px] rounded-full bg-[#ea2261]" />
                 </div>
                 <div className="min-w-0 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover/sidebar:opacity-100 md:group-focus-within/sidebar:opacity-100">
                   <p className="text-[10px] font-[400] uppercase tracking-[0.1px] text-[#64748d] [font-feature-settings:'ss01']">
-                    Customer banking
+                    Admin Portal
                   </p>
                   <p className="mt-1 text-[18px] font-[300] leading-[1.1] tracking-[-0.18px] text-[#0d253d] [font-feature-settings:'ss01']">
-                    SecureBank NG
+                    System Control
                   </p>
                 </div>
               </div>
@@ -164,8 +148,8 @@ export default function DashboardLayout({
 
             <nav className="relative flex-1 space-y-1 overflow-hidden px-3 py-4">
               {navItems.map((item) => {
-                const isActive = item.path === "/dashboard" 
-                  ? pathname === "/dashboard" 
+                const isActive = item.exact 
+                  ? pathname === item.path 
                   : pathname.startsWith(item.path);
 
                 return (
@@ -183,7 +167,7 @@ export default function DashboardLayout({
                     <span
                       className={`
                         flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-[400] tracking-[0.1px] [font-feature-settings:'tnum','ss01']
-                        ${isActive ? "bg-[#533afd] text-white" : "bg-white text-[#64748d] ring-1 ring-[#e3e8ee] group-hover:text-[#533afd]"}
+                        ${isActive ? "bg-[#ea2261] text-white" : "bg-white text-[#64748d] ring-1 ring-[#e3e8ee] group-hover:text-[#ea2261]"}
                       `}
                     >
                       {item.code}
@@ -202,14 +186,14 @@ export default function DashboardLayout({
                   Signed in
                 </p>
                 <p className="mt-1 truncate text-[13px] font-[300] text-[#0d253d] [font-feature-settings:'ss01']">
-                  {customer ? `${customer.first_name} ${customer.last_name}` : user?.email}
+                  {user?.email}
                 </p>
               </div>
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-full border border-[#e3e8ee] bg-white px-3 py-2.5 text-[#64748d] transition-colors hover:bg-[#f6f9fc] hover:text-[#0d253d] whitespace-nowrap"
+                className="flex w-full items-center gap-3 rounded-full border border-[#e3e8ee] bg-white px-3 py-2.5 text-[#64748d] transition-colors hover:bg-[#fef2f1] hover:border-[#ea2261]/20 hover:text-[#ea2261] whitespace-nowrap"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f6f9fc] text-[10px] font-[400] text-[#64748d] [font-feature-settings:'ss01']">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f6f9fc] text-[10px] font-[400] text-[#64748d] [font-feature-settings:'ss01'] group-hover:bg-white group-hover:text-[#ea2261]">
                   SO
                 </span>
                 <span className="opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover/sidebar:opacity-100 md:group-focus-within/sidebar:opacity-100 text-[14px] font-[400] [font-feature-settings:'ss01']">
@@ -231,7 +215,7 @@ export default function DashboardLayout({
           className="flex flex-1 flex-col transition-all duration-300 md:pl-[80px]"
         >
           <div className="w-full flex-1 px-4 sm:px-8 py-10 lg:px-12">
-            <div className="animate-fade-in max-w-[1000px] mx-auto">{children}</div>
+            <div className="animate-fade-in max-w-[1200px] mx-auto">{children}</div>
           </div>
         </main>
       </div>

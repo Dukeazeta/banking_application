@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const AUTH_COOKIE_NAME = "bank_token";
 const PUBLIC_AUTH_PATHS = ["/login", "/register"];
 
-type AuthRole = "CUSTOMER" | "ADMIN";
+type AuthRole = "CUSTOMER" | "ADMIN" | "TELLER";
 
 type MiddlewareTokenPayload = {
   userId: number;
@@ -41,7 +41,7 @@ function base64UrlToJson<T>(value: string): T {
 }
 
 function isRole(value: unknown): value is AuthRole {
-  return value === "CUSTOMER" || value === "ADMIN";
+  return value === "CUSTOMER" || value === "ADMIN" || value === "TELLER";
 }
 
 function isValidPayload(value: unknown): value is MiddlewareTokenPayload {
@@ -116,7 +116,7 @@ function redirectToLogin(request: NextRequest) {
 
 function redirectAuthenticatedUser(request: NextRequest, role: AuthRole) {
   const url = request.nextUrl.clone();
-  url.pathname = role === "ADMIN" ? "/admin" : "/dashboard";
+  url.pathname = role === "ADMIN" ? "/admin" : role === "CUSTOMER" ? "/dashboard" : "/teller";
   url.search = "";
   return NextResponse.redirect(url);
 }

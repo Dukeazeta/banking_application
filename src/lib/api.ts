@@ -50,6 +50,20 @@ export function requireRole(request: NextRequest, role: AuthRole) {
   return { error: null, user: auth.user };
 }
 
+export function requireAnyRole(request: NextRequest, roles: AuthRole[]) {
+  const auth = requireAuthenticatedUser(request);
+
+  if (auth.error || !auth.user) {
+    return auth;
+  }
+
+  if (!roles.includes(auth.user.role)) {
+    return { error: jsonError("Forbidden.", 403), user: null };
+  }
+
+  return { error: null, user: auth.user };
+}
+
 export function asRequiredString(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;

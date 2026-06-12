@@ -15,6 +15,9 @@ USE banking_db;
 
 -- customers: lookup by user_id is already covered by UNIQUE constraint
 
+-- tellers: staff code and user lookup are covered by UNIQUE constraints
+CREATE INDEX idx_tellers_status ON tellers(status);
+
 -- accounts: filter by customer (dashboard shows all accounts for a customer)
 CREATE INDEX idx_accounts_customer_id ON accounts(customer_id);
 
