@@ -17,6 +17,10 @@ type DbConfig = {
   user: string;
   password: string;
   database: string;
+  ssl?: {
+    ca?: string;
+    rejectUnauthorized: boolean;
+  };
 };
 
 type ProcedureResult<T extends QueryResult = RowDataPacket[]> = [
@@ -43,12 +47,28 @@ function getDbConfig(): DbConfig {
     throw new Error("DB_PORT must be a positive integer");
   }
 
+  const sslCa = process.env.DB_SSL_CA?.replace(/\\n/g, "\n").trim();
+  const sslMode = process.env.DB_SSL?.trim().toLowerCase();
+  const sslEnabled = Boolean(sslCa) || sslMode === "true" || sslMode === "1" || sslMode === "required";
+  const rejectUnauthorized =
+    process.env.DB_SSL_REJECT_UNAUTHORIZED === undefined
+      ? Boolean(sslCa)
+      : process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false";
+
   return {
     host: requireEnv("DB_HOST"),
     port,
     user: requireEnv("DB_USER"),
     password: process.env.DB_PASSWORD ?? "",
     database: requireEnv("DB_NAME"),
+    ...(sslEnabled
+      ? {
+          ssl: {
+            ...(sslCa ? { ca: sslCa } : {}),
+            rejectUnauthorized,
+          },
+        }
+      : {}),
   };
 }
 
