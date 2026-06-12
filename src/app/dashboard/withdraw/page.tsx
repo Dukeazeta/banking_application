@@ -23,6 +23,7 @@ function WithdrawContent() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [transactionPin, setTransactionPin] = useState("");
   
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -72,8 +73,8 @@ function WithdrawContent() {
     setSuccess(null);
     setProcessing(true);
 
-    if (!selectedAccountId || !amount) {
-      setError("Please select an account and specify a withdrawal amount.");
+    if (!selectedAccountId || !amount || !transactionPin) {
+      setError("Please select an account, specify a withdrawal amount, and enter your transaction PIN.");
       setProcessing(false);
       return;
     }
@@ -81,6 +82,12 @@ function WithdrawContent() {
     const numericAmount = parseFloat(amount);
     if (Number.isNaN(numericAmount) || numericAmount <= 0) {
       setError("Please specify a valid withdrawal amount greater than zero.");
+      setProcessing(false);
+      return;
+    }
+
+    if (!/^\d{4}$/.test(transactionPin)) {
+      setError("Transaction PIN must be exactly 4 digits.");
       setProcessing(false);
       return;
     }
@@ -104,6 +111,7 @@ function WithdrawContent() {
           accountId: parseInt(selectedAccountId),
           amount: numericAmount,
           description: description || undefined,
+          transactionPin,
         }),
       });
 
@@ -117,6 +125,7 @@ function WithdrawContent() {
       
       setAmount("");
       setDescription("");
+      setTransactionPin("");
 
       setTimeout(() => {
         router.push(`/dashboard/accounts/${selectedAccountId}`);
@@ -260,6 +269,24 @@ function WithdrawContent() {
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={processing}
                 className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[14px] text-[#0d253d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="transactionPin" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                Transaction PIN
+              </label>
+              <input
+                id="transactionPin"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="4-digit PIN"
+                value={transactionPin}
+                onChange={(e) => setTransactionPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                disabled={processing}
+                className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono [font-feature-settings:'tnum'] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                required
               />
             </div>
 
