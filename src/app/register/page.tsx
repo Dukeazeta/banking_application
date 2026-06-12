@@ -255,7 +255,7 @@ export default function Register() {
                 type="password"
                 inputMode="numeric"
                 maxLength={4}
-                placeholder="1234"
+                placeholder="4-digit PIN"
                 value={transactionPin}
                 onChange={(e) => setTransactionPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
                 disabled={loading}

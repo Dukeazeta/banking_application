@@ -227,9 +227,9 @@ function TransferContent() {
   }
 
   return (
-    <div className="space-y-10 font-sans max-w-[500px] mx-auto pb-16">
+    <div className="space-y-10 font-sans max-w-[920px] mx-auto pb-16">
       {/* Navigation Breadcrumbs */}
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 lg:justify-start">
         <Link href="/dashboard" className="text-[13px] font-[400] text-[#64748d] hover:text-[#0d253d] hover:underline transition-colors">
           &larr; Overview
         </Link>
@@ -238,8 +238,8 @@ function TransferContent() {
       </div>
 
       {/* Main Transfer Form Card */}
-      <div className="w-full rounded-[16px] bg-white border border-[#e3e8ee] p-8 shadow-[0_8px_24px_rgba(0,55,112,0.08)]">
-        <div className="mb-8 space-y-2 text-center">
+      <div className="w-full rounded-[16px] bg-white border border-[#e3e8ee] p-6 shadow-[0_8px_24px_rgba(0,55,112,0.08)] sm:p-8">
+        <div className="mb-8 space-y-2 text-center lg:text-left">
           <h1 className="text-[26px] font-[300] leading-[1.12] tracking-[-0.26px] text-[#0d253d] [font-feature-settings:'ss01']">
             Transfer Funds
           </h1>
@@ -268,152 +268,156 @@ function TransferContent() {
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="fromAccountId" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
-                Origin Account
-              </label>
-              <div className="relative">
-                <select
-                  id="fromAccountId"
-                  value={selectedFromAccountId}
+          <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-2 lg:items-start">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="fromAccountId" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                  Origin Account
+                </label>
+                <div className="relative">
+                  <select
+                    id="fromAccountId"
+                    value={selectedFromAccountId}
+                    onChange={(e) => {
+                      setSelectedFromAccountId(e.target.value);
+                      setRecipient(null);
+                      setRecipientError(null);
+                    }}
+                    disabled={processing}
+                    className="w-full appearance-none rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[14px] text-[#0d253d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                    required
+                  >
+                    {accounts.map((acc) => (
+                      <option key={acc.account_id} value={acc.account_id}>
+                        {formatAccountType(acc.account_type)} &mdash; {acc.account_number}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#64748d]">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {originAccount && (
+                <div className="rounded-md bg-[#f6f9fc] border border-[#e3e8ee] p-4 space-y-3">
+                  <div className="flex justify-between items-center gap-4">
+                    <span className="text-[13px] text-[#64748d]">Available Funding</span>
+                    <span className="text-[14px] font-[300] text-[#0d253d] [font-feature-settings:'tnum']">
+                      {formatCurrency(originAccount.balance)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 border-t border-[#e3e8ee] pt-3">
+                    <span className="font-mono text-[13px] text-[#0d253d]">{originAccount.account_number}</span>
+                    <button
+                      type="button"
+                      onClick={() => copyAccountNumber(originAccount.account_number)}
+                      className="text-[12px] text-[#0d253d] underline-offset-4 hover:underline"
+                    >
+                      {copiedAccount === originAccount.account_number ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label htmlFor="toAccountNumber" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                  Target Account Number
+                </label>
+                <input
+                  id="toAccountNumber"
+                  type="text"
+                  placeholder="10-digit account number"
+                  value={toAccountNumber}
+                  inputMode="numeric"
+                  maxLength={10}
+                  onBlur={() => {
+                    if (toAccountNumber.length === 10) {
+                      void validateRecipient();
+                    }
+                  }}
                   onChange={(e) => {
-                    setSelectedFromAccountId(e.target.value);
+                    const cleanValue = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    setToAccountNumber(cleanValue);
                     setRecipient(null);
                     setRecipientError(null);
                   }}
                   disabled={processing}
-                  className="w-full appearance-none rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[14px] text-[#0d253d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                  className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono tracking-widest focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
                   required
-                >
-                  {accounts.map((acc) => (
-                    <option key={acc.account_id} value={acc.account_id}>
-                      {formatAccountType(acc.account_type)} &mdash; {acc.account_number}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#64748d]">
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {originAccount && (
-              <div className="rounded-md bg-[#f6f9fc] border border-[#e3e8ee] p-4 space-y-3">
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[13px] text-[#64748d]">Available Funding</span>
-                  <span className="text-[14px] font-[300] text-[#0d253d] [font-feature-settings:'tnum']">
-                    {formatCurrency(originAccount.balance)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-t border-[#e3e8ee] pt-3">
-                  <span className="font-mono text-[13px] text-[#0d253d]">{originAccount.account_number}</span>
-                  <button
-                    type="button"
-                    onClick={() => copyAccountNumber(originAccount.account_number)}
-                    className="text-[12px] text-[#0d253d] underline-offset-4 hover:underline"
-                  >
-                    {copiedAccount === originAccount.account_number ? "Copied" : "Copy"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label htmlFor="toAccountNumber" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
-                Target Account Number
-              </label>
-              <input
-                id="toAccountNumber"
-                type="text"
-                placeholder="0123456789"
-                value={toAccountNumber}
-                inputMode="numeric"
-                maxLength={10}
-                onBlur={() => {
-                  if (toAccountNumber.length === 10) {
-                    void validateRecipient();
-                  }
-                }}
-                onChange={(e) => {
-                  const cleanValue = e.target.value.replace(/\D/g, "").slice(0, 10);
-                  setToAccountNumber(cleanValue);
-                  setRecipient(null);
-                  setRecipientError(null);
-                }}
-                disabled={processing}
-                className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono tracking-widest focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
-                required
-              />
-              {checkingRecipient && (
-                <p className="text-[12px] text-[#64748d]">Checking recipient...</p>
-              )}
-              {recipientError && (
-                <p className="text-[12px] text-[#ea2261]">{recipientError}</p>
-              )}
-              {recipient && (
-                <div className="rounded-md border border-[#d6f0df] bg-[#f4fbf6] p-4 text-[13px] text-[#0d253d]">
-                  <div className="font-[500]">{recipient.customerName}</div>
-                  <div className="mt-1 text-[#64748d]">
-                    {formatAccountType(recipient.accountType)} - {recipient.accountNumber}
+                />
+                {checkingRecipient && (
+                  <p className="text-[12px] text-[#64748d]">Checking recipient...</p>
+                )}
+                {recipientError && (
+                  <p className="text-[12px] text-[#ea2261]">{recipientError}</p>
+                )}
+                {recipient && (
+                  <div className="rounded-md border border-[#d6f0df] bg-[#f4fbf6] p-4 text-[13px] text-[#0d253d]">
+                    <div className="font-[500]">{recipient.customerName}</div>
+                    <div className="mt-1 text-[#64748d]">
+                      {formatAccountType(recipient.accountType)} - {recipient.accountNumber}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="amount" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
-                Amount (NGN)
-              </label>
-              <input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="10000.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                disabled={processing}
-                className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono [font-feature-settings:'tnum'] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
-                required
-              />
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="amount" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                  Amount (NGN)
+                </label>
+                <input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  placeholder="10000.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  disabled={processing}
+                  className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono [font-feature-settings:'tnum'] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="description" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                  Reference Memo <span className="text-[#a8c3de] lowercase">(Optional)</span>
+                </label>
+                <input
+                  id="description"
+                  type="text"
+                  placeholder="e.g. Rent or Split expense"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  disabled={processing}
+                  className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[14px] text-[#0d253d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="transactionPin" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                  Transaction PIN
+                </label>
+                <input
+                  id="transactionPin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="4-digit PIN"
+                  value={transactionPin}
+                  onChange={(e) => setTransactionPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  disabled={processing}
+                  className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono tracking-widest focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="description" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
-                Reference Memo <span className="text-[#a8c3de] lowercase">(Optional)</span>
-              </label>
-              <input
-                id="description"
-                type="text"
-                placeholder="e.g. Rent or Split expense"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={processing}
-                className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[14px] text-[#0d253d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="transactionPin" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
-                Transaction PIN
-              </label>
-              <input
-                id="transactionPin"
-                type="password"
-                inputMode="numeric"
-                maxLength={4}
-                placeholder="1234"
-                value={transactionPin}
-                onChange={(e) => setTransactionPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                disabled={processing}
-                className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono tracking-widest focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
-                required
-              />
-            </div>
-
-            <div className="flex gap-3 pt-6 border-t border-[#e3e8ee]">
+            <div className="flex gap-3 pt-6 border-t border-[#e3e8ee] lg:col-span-2">
               <Link
                 href="/dashboard"
                 className="inline-flex flex-1 h-10 items-center justify-center rounded-full border border-[#e3e8ee] bg-white px-6 text-[14px] font-[400] text-[#0d253d] hover:border-[#a8c3de] hover:bg-[#f6f9fc] transition-colors"
