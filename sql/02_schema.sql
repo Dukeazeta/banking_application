@@ -25,6 +25,7 @@ CREATE TABLE users (
     user_id         INT             AUTO_INCREMENT PRIMARY KEY,
     email           VARCHAR(100)    NOT NULL,
     password_hash   VARCHAR(255)    NOT NULL,
+    transaction_pin_hash VARCHAR(255) NOT NULL,
     role            ENUM('CUSTOMER', 'ADMIN') NOT NULL DEFAULT 'CUSTOMER',
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -14,6 +14,12 @@ type Account = {
   status: "ACTIVE" | "CLOSED" | "FROZEN";
 };
 
+type RecipientAccount = {
+  accountNumber: string;
+  accountType: AccountType;
+  customerName: string;
+};
+
 function TransferContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,6 +30,11 @@ function TransferContent() {
   const [toAccountNumber, setToAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [transactionPin, setTransactionPin] = useState("");
+  const [recipient, setRecipient] = useState<RecipientAccount | null>(null);
+  const [recipientError, setRecipientError] = useState<string | null>(null);
+  const [checkingRecipient, setCheckingRecipient] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -60,21 +71,83 @@ function TransferContent() {
     (acc) => acc.account_id === parseInt(selectedFromAccountId)
   );
 
+  const copyAccountNumber = async (accountNumber: string) => {
+    await navigator.clipboard.writeText(accountNumber);
+    setCopiedAccount(accountNumber);
+    window.setTimeout(() => setCopiedAccount(null), 1400);
+  };
+
+  const validateRecipient = async (accountNumber = toAccountNumber) => {
+    const cleanAccountNumber = accountNumber.replace(/\D/g, "").slice(0, 10);
+
+    setRecipient(null);
+    setRecipientError(null);
+
+    if (!cleanAccountNumber) {
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(cleanAccountNumber)) {
+      setRecipientError("Enter a 10-digit account number.");
+      return false;
+    }
+
+    if (originAccount && cleanAccountNumber === originAccount.account_number) {
+      setRecipientError("You cannot transfer to the same account.");
+      return false;
+    }
+
+    setCheckingRecipient(true);
+
+    try {
+      const res = await fetch(
+        `/api/accounts/lookup?accountNumber=${encodeURIComponent(cleanAccountNumber)}`,
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Recipient account could not be verified.");
+      }
+
+      setRecipient(data.account as RecipientAccount);
+      return true;
+    } catch (err: unknown) {
+      setRecipientError(
+        err instanceof Error ? err.message : "Recipient account could not be verified.",
+      );
+      return false;
+    } finally {
+      setCheckingRecipient(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
     setProcessing(true);
 
-    if (!selectedFromAccountId || !toAccountNumber || !amount) {
+    if (!selectedFromAccountId || !toAccountNumber || !amount || !transactionPin) {
       setError("Please fill in all required fields.");
       setProcessing(false);
       return;
     }
 
-    const cleanToAccountNumber = toAccountNumber.trim();
+    const cleanToAccountNumber = toAccountNumber.replace(/\D/g, "").slice(0, 10);
+    if (!/^\d{10}$/.test(cleanToAccountNumber)) {
+      setError("Destination account number must be exactly 10 digits.");
+      setProcessing(false);
+      return;
+    }
+
     if (originAccount && cleanToAccountNumber === originAccount.account_number) {
       setError("Forbidden: You cannot transfer funds to the same origin account.");
+      setProcessing(false);
+      return;
+    }
+
+    if (!/^\d{4}$/.test(transactionPin)) {
+      setError("Transaction PIN must be exactly 4 digits.");
       setProcessing(false);
       return;
     }
@@ -98,6 +171,13 @@ function TransferContent() {
     }
 
     try {
+      const recipientIsValid = await validateRecipient(cleanToAccountNumber);
+
+      if (!recipientIsValid) {
+        setProcessing(false);
+        return;
+      }
+
       const res = await fetch("/api/transfers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -106,6 +186,7 @@ function TransferContent() {
           toAccountNumber: cleanToAccountNumber,
           amount: numericAmount,
           description: description || undefined,
+          transactionPin,
         }),
       });
 
@@ -120,6 +201,8 @@ function TransferContent() {
       setToAccountNumber("");
       setAmount("");
       setDescription("");
+      setTransactionPin("");
+      setRecipient(null);
 
       setTimeout(() => {
         router.push(`/dashboard/accounts/${selectedFromAccountId}`);
@@ -194,7 +277,11 @@ function TransferContent() {
                 <select
                   id="fromAccountId"
                   value={selectedFromAccountId}
-                  onChange={(e) => setSelectedFromAccountId(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedFromAccountId(e.target.value);
+                    setRecipient(null);
+                    setRecipientError(null);
+                  }}
                   disabled={processing}
                   className="w-full appearance-none rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[14px] text-[#0d253d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
                   required
@@ -214,11 +301,23 @@ function TransferContent() {
             </div>
 
             {originAccount && (
-              <div className="rounded-md bg-[#f6f9fc] border border-[#e3e8ee] p-4 flex justify-between items-center">
-                <span className="text-[13px] text-[#64748d]">Available Funding</span>
-                <span className="text-[14px] font-[300] text-[#0d253d] [font-feature-settings:'tnum']">
-                  {formatCurrency(originAccount.balance)}
-                </span>
+              <div className="rounded-md bg-[#f6f9fc] border border-[#e3e8ee] p-4 space-y-3">
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[13px] text-[#64748d]">Available Funding</span>
+                  <span className="text-[14px] font-[300] text-[#0d253d] [font-feature-settings:'tnum']">
+                    {formatCurrency(originAccount.balance)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-t border-[#e3e8ee] pt-3">
+                  <span className="font-mono text-[13px] text-[#0d253d]">{originAccount.account_number}</span>
+                  <button
+                    type="button"
+                    onClick={() => copyAccountNumber(originAccount.account_number)}
+                    className="text-[12px] text-[#0d253d] underline-offset-4 hover:underline"
+                  >
+                    {copiedAccount === originAccount.account_number ? "Copied" : "Copy"}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -231,11 +330,37 @@ function TransferContent() {
                 type="text"
                 placeholder="0123456789"
                 value={toAccountNumber}
-                onChange={(e) => setToAccountNumber(e.target.value)}
+                inputMode="numeric"
+                maxLength={10}
+                onBlur={() => {
+                  if (toAccountNumber.length === 10) {
+                    void validateRecipient();
+                  }
+                }}
+                onChange={(e) => {
+                  const cleanValue = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setToAccountNumber(cleanValue);
+                  setRecipient(null);
+                  setRecipientError(null);
+                }}
                 disabled={processing}
                 className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono tracking-widest focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
                 required
               />
+              {checkingRecipient && (
+                <p className="text-[12px] text-[#64748d]">Checking recipient...</p>
+              )}
+              {recipientError && (
+                <p className="text-[12px] text-[#ea2261]">{recipientError}</p>
+              )}
+              {recipient && (
+                <div className="rounded-md border border-[#d6f0df] bg-[#f4fbf6] p-4 text-[13px] text-[#0d253d]">
+                  <div className="font-[500]">{recipient.customerName}</div>
+                  <div className="mt-1 text-[#64748d]">
+                    {formatAccountType(recipient.accountType)} - {recipient.accountNumber}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -270,6 +395,24 @@ function TransferContent() {
               />
             </div>
 
+            <div className="space-y-2">
+              <label htmlFor="transactionPin" className="text-[11px] font-[400] uppercase tracking-[0.06em] text-[#64748d] block">
+                Transaction PIN
+              </label>
+              <input
+                id="transactionPin"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="1234"
+                value={transactionPin}
+                onChange={(e) => setTransactionPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                disabled={processing}
+                className="w-full rounded-md border border-[#e3e8ee] bg-white px-4 py-2.5 text-[15px] text-[#0d253d] font-mono tracking-widest focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                required
+              />
+            </div>
+
             <div className="flex gap-3 pt-6 border-t border-[#e3e8ee]">
               <Link
                 href="/dashboard"
@@ -279,7 +422,7 @@ function TransferContent() {
               </Link>
               <button
                 type="submit"
-                disabled={processing}
+                disabled={processing || checkingRecipient}
                 className="inline-flex flex-1 h-10 items-center justify-center rounded-full bg-[#533afd] px-6 text-[14px] font-[400] text-white hover:bg-[#4434d4] transition-colors shadow-sm disabled:opacity-70 disabled:hover:bg-[#533afd]"
               >
                 {processing ? "Processing..." : "Transfer"}

@@ -40,6 +40,8 @@ export default function AccountDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBalances, setShowBalances] = useState(true);
+  const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
     async function fetchAccountData() {
@@ -77,6 +79,12 @@ export default function AccountDetail({
     }
     fetchAccountData();
   }, [id]);
+
+  const copyAccountNumber = async (accountNumber: string) => {
+    await navigator.clipboard.writeText(accountNumber);
+    setCopiedAccount(accountNumber);
+    window.setTimeout(() => setCopiedAccount(null), 1400);
+  };
 
   if (loading) {
     return (
@@ -129,9 +137,16 @@ export default function AccountDetail({
                 </span>
               )}
             </h1>
-            <p className="text-[13px] text-[#64748d] font-mono tracking-tight">
-              ...{account.account_number.slice(-4)}
-            </p>
+            <div className="flex items-center gap-3 text-[13px] text-[#64748d] font-mono tracking-tight">
+              <span>...{account.account_number.slice(-4)}</span>
+              <button
+                type="button"
+                onClick={() => copyAccountNumber(account.account_number)}
+                className="font-sans text-[12px] text-[#0d253d] underline-offset-4 hover:underline"
+              >
+                {copiedAccount === account.account_number ? "Copied" : "Copy"}
+              </button>
+            </div>
           </div>
           
           <div className="space-y-2 pt-2">
@@ -223,7 +238,11 @@ export default function AccountDetail({
                     const isFailed = txn.status === "FAILED";
 
                     return (
-                      <tr key={txn.transaction_id} className="hover:bg-[#f6f9fc]/50 transition-colors group">
+                      <tr
+                        key={txn.transaction_id}
+                        onClick={() => setSelectedTransaction(txn)}
+                        className="cursor-pointer hover:bg-[#f6f9fc]/50 transition-colors group"
+                      >
                         <td className="text-[13px] text-[#64748d] px-6 py-4 whitespace-nowrap [font-feature-settings:'tnum']">
                           {formatNigeriaDateTime(txn.created_at)}
                         </td>
@@ -261,6 +280,44 @@ export default function AccountDetail({
           </div>
         )}
       </section>
+
+      {selectedTransaction && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[#0d253d]/40 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-[480px] rounded-[16px] bg-white border border-[#e3e8ee] p-8 shadow-[0_8px_24px_rgba(0,55,112,0.08)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-[22px] font-[300] tracking-[-0.22px] text-[#0d253d] [font-feature-settings:'ss01']">Transaction details</h2>
+                <p className="mt-1 font-mono text-[12px] text-[#64748d]">{selectedTransaction.transaction_reference}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedTransaction(null)}
+                className="text-[22px] leading-none text-[#64748d] hover:text-[#0d253d]"
+                aria-label="Close transaction details"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="mt-8 grid gap-4 text-[13px]">
+              {[
+                ["Type", selectedTransaction.transaction_type.replace("_", " ")],
+                ["Amount", formatCurrency(selectedTransaction.amount)],
+                ["Status", selectedTransaction.status],
+                ["Description", selectedTransaction.description || "No description"],
+                ["Account number", account.account_number],
+                ["Balance after", formatCurrency(selectedTransaction.balance_after)],
+                ["Timestamp", formatNigeriaDateTime(selectedTransaction.created_at)],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-start justify-between gap-6 border-b border-[#e3e8ee] pb-3 last:border-0">
+                  <span className="text-[#64748d]">{label}</span>
+                  <span className="text-right font-[400] text-[#0d253d]">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,16 +10,16 @@ USE banking_db;
 
 -- 1. Create Admin User
 -- Password is 'admin123'
-INSERT INTO users (user_id, email, password_hash, role)
-VALUES (1, 'admin@bankapp.com', '$2b$10$seQIs4x6FRVIdcXNhpl9veuSnEAq6DnTg17Yqe4mDi76.Ay8igrwu', 'ADMIN');
+INSERT INTO users (user_id, email, password_hash, transaction_pin_hash, role)
+VALUES (1, 'admin@bankapp.com', '$2b$10$seQIs4x6FRVIdcXNhpl9veuSnEAq6DnTg17Yqe4mDi76.Ay8igrwu', '$2b$10$py2CqIf/SJaQ/T5CtzmrV.FcsviNDtAQ5yBQKjfi5m5GDCFHicQnm', 'ADMIN');
 
 -- 2. Create Customer Users
 -- Passwords are 'password123'
-INSERT INTO users (user_id, email, password_hash, role)
+INSERT INTO users (user_id, email, password_hash, transaction_pin_hash, role)
 VALUES
-(2, 'ada.okafor@example.com', '$2b$10$WkFBYmw2pOM7HJJA8hvwu.PfDfUi4WJmTZitYHRp/4nGrq2HPCqh2', 'CUSTOMER'),
-(3, 'tunde.balogun@example.com', '$2b$10$WkFBYmw2pOM7HJJA8hvwu.PfDfUi4WJmTZitYHRp/4nGrq2HPCqh2', 'CUSTOMER'),
-(4, 'zainab.musa@example.com', '$2b$10$WkFBYmw2pOM7HJJA8hvwu.PfDfUi4WJmTZitYHRp/4nGrq2HPCqh2', 'CUSTOMER');
+(2, 'ada.okafor@example.com', '$2b$10$WkFBYmw2pOM7HJJA8hvwu.PfDfUi4WJmTZitYHRp/4nGrq2HPCqh2', '$2b$10$py2CqIf/SJaQ/T5CtzmrV.FcsviNDtAQ5yBQKjfi5m5GDCFHicQnm', 'CUSTOMER'),
+(3, 'tunde.balogun@example.com', '$2b$10$WkFBYmw2pOM7HJJA8hvwu.PfDfUi4WJmTZitYHRp/4nGrq2HPCqh2', '$2b$10$py2CqIf/SJaQ/T5CtzmrV.FcsviNDtAQ5yBQKjfi5m5GDCFHicQnm', 'CUSTOMER'),
+(4, 'zainab.musa@example.com', '$2b$10$WkFBYmw2pOM7HJJA8hvwu.PfDfUi4WJmTZitYHRp/4nGrq2HPCqh2', '$2b$10$py2CqIf/SJaQ/T5CtzmrV.FcsviNDtAQ5yBQKjfi5m5GDCFHicQnm', 'CUSTOMER');
 
 -- 3. Create Customer Profiles
 INSERT INTO customers (customer_id, user_id, first_name, last_name, phone, address, date_of_birth)

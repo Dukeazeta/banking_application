@@ -23,6 +23,7 @@ DROP PROCEDURE IF EXISTS sp_register_customer //
 CREATE PROCEDURE sp_register_customer(
     IN p_email VARCHAR(100),
     IN p_password_hash VARCHAR(255),
+    IN p_transaction_pin_hash VARCHAR(255),
     IN p_first_name VARCHAR(50),
     IN p_last_name VARCHAR(50),
     IN p_phone VARCHAR(20),
@@ -41,8 +42,8 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO users (email, password_hash, role)
-    VALUES (p_email, p_password_hash, 'CUSTOMER');
+    INSERT INTO users (email, password_hash, transaction_pin_hash, role)
+    VALUES (p_email, p_password_hash, p_transaction_pin_hash, 'CUSTOMER');
 
     SET v_user_id = LAST_INSERT_ID();
 

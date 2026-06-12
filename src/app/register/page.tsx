@@ -10,6 +10,7 @@ export default function Register() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [transactionPin, setTransactionPin] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -44,7 +45,7 @@ export default function Register() {
     setSuccess(null);
     setLoading(true);
 
-    if (!email || !password || !firstName || !lastName || !dateOfBirth) {
+    if (!email || !password || !transactionPin || !firstName || !lastName || !dateOfBirth) {
       setError("Please fill in all required fields.");
       setLoading(false);
       return;
@@ -52,6 +53,12 @@ export default function Register() {
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    if (!/^\d{4}$/.test(transactionPin)) {
+      setError("Transaction PIN must be exactly 4 digits.");
       setLoading(false);
       return;
     }
@@ -69,6 +76,7 @@ export default function Register() {
         body: JSON.stringify({
           email,
           password,
+          transactionPin,
           firstName,
           lastName,
           phone: phone || undefined,
@@ -234,6 +242,24 @@ export default function Register() {
                 onChange={(e) => setDateOfBirth(e.target.value)}
                 disabled={loading}
                 className="w-full rounded-md border border-[#a8c3de] bg-white px-3 py-2 text-[15px] font-mono tracking-tight text-[#0d253d] placeholder-[#64748d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="transactionPin" className="block text-[13px] font-[400] text-[#273951]">
+                Transaction PIN
+              </label>
+              <input
+                id="transactionPin"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="1234"
+                value={transactionPin}
+                onChange={(e) => setTransactionPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                disabled={loading}
+                className="w-full rounded-md border border-[#a8c3de] bg-white px-3 py-2 text-[15px] font-mono tracking-widest text-[#0d253d] placeholder-[#64748d] focus:border-[#533afd] focus:outline-none focus:ring-1 focus:ring-[#533afd] disabled:opacity-50"
                 required
               />
             </div>

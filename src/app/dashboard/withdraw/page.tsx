@@ -28,6 +28,7 @@ function WithdrawContent() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAccounts() {
@@ -58,6 +59,12 @@ function WithdrawContent() {
   const selectedAccount = accounts.find(
     (acc) => acc.account_id === parseInt(selectedAccountId)
   );
+
+  const copyAccountNumber = async (accountNumber: string) => {
+    await navigator.clipboard.writeText(accountNumber);
+    setCopiedAccount(accountNumber);
+    window.setTimeout(() => setCopiedAccount(null), 1400);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,11 +211,23 @@ function WithdrawContent() {
             </div>
 
             {selectedAccount && (
-              <div className="rounded-md bg-[#f6f9fc] border border-[#e3e8ee] p-4 flex justify-between items-center">
-                <span className="text-[13px] text-[#64748d]">Available Balance</span>
-                <span className="text-[14px] font-[300] text-[#0d253d] [font-feature-settings:'tnum']">
-                  {formatCurrency(selectedAccount.balance)}
-                </span>
+              <div className="rounded-md bg-[#f6f9fc] border border-[#e3e8ee] p-4 space-y-3">
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-[13px] text-[#64748d]">Available Balance</span>
+                  <span className="text-[14px] font-[300] text-[#0d253d] [font-feature-settings:'tnum']">
+                    {formatCurrency(selectedAccount.balance)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-t border-[#e3e8ee] pt-3">
+                  <span className="font-mono text-[13px] text-[#0d253d]">{selectedAccount.account_number}</span>
+                  <button
+                    type="button"
+                    onClick={() => copyAccountNumber(selectedAccount.account_number)}
+                    className="text-[12px] text-[#0d253d] underline-offset-4 hover:underline"
+                  >
+                    {copiedAccount === selectedAccount.account_number ? "Copied" : "Copy"}
+                  </button>
+                </div>
               </div>
             )}
 
